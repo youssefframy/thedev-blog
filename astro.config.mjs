@@ -1,13 +1,20 @@
 // @ts-check
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
-import { defineConfig, fontProviders } from 'astro/config';
+import vercel from '@astrojs/vercel';
+import { defineConfig, envField, fontProviders } from 'astro/config';
 
-// TODO: update site to your real domain before deploying
 export default defineConfig({
 	site: 'https://thedev.blog',
+	adapter: vercel(),
 	prefetch: { prefetchAll: true, defaultStrategy: 'hover' },
 	integrations: [mdx(), sitemap()],
+	env: {
+		schema: {
+			RESEND_API_KEY: envField.string({ context: 'server', access: 'secret' }),
+			RESEND_AUDIENCE_ID: envField.string({ context: 'server', access: 'secret' }),
+		},
+	},
 	fonts: [
 		{
 			provider: fontProviders.google(),

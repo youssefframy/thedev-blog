@@ -2,13 +2,14 @@
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from './BaseLayout.astro';
 import Newsletter from '../components/Newsletter.astro';
+import Giscus from '../components/Giscus.astro';
 import PostCard from '../components/PostCard.astro';
 import { getArticles, toVtSlug } from '../lib/articles';
 import '../styles/article.css';
 
 type Props = CollectionEntry<'blog'>['data'] & { postId: string };
 
-const { title, description, pubDate, category, tags, readMins, postId } = Astro.props;
+const { title, description, pubDate, updatedDate, category, tags, readMins, postId } = Astro.props;
 
 // Category → badge background color (matching reference)
 const CAT_COLOR: Record<string, string> = {
@@ -32,7 +33,16 @@ const displayReadMins = readMins ?? 5;
 const vtSlug = toVtSlug(postId);
 ---
 
-<BaseLayout title={title} description={description} page="articles">
+<BaseLayout
+  title={title}
+  description={description}
+  page="articles"
+  type="article"
+  publishedTime={pubDate.toISOString()}
+  modifiedTime={updatedDate?.toISOString()}
+  author="thedev"
+  tags={tags}
+>
   <!-- Reading progress bar (position:fixed, sits at top of viewport) -->
   <div class="progress" id="progress"></div>
 
@@ -90,6 +100,9 @@ const vtSlug = toVtSlug(postId);
 
   <!-- Newsletter -->
   <Newsletter />
+
+  <!-- Comments + reactions -->
+  <Giscus />
 
   <!-- Suggested reads -->
   {suggestions.length > 0 && (

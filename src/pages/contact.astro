@@ -103,6 +103,8 @@ import '../styles/page.css';
 </BaseLayout>
 
 <script>
+  import { actions } from 'astro:actions';
+
   document.addEventListener('astro:page-load', () => {
     const form = document.getElementById('contactForm') as HTMLFormElement | null;
     const success = document.getElementById('formSuccess');
@@ -115,7 +117,7 @@ import '../styles/page.css';
       if (field) field.classList.toggle('nb-input--error', show);
     }
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const nameVal = (form.elements.namedItem('name') as HTMLInputElement).value.trim();
       const emailVal = (form.elements.namedItem('email') as HTMLInputElement).value.trim();
@@ -128,6 +130,18 @@ import '../styles/page.css';
 
       if (!ok) {
         (window as typeof window & { thedevToast?: (msg: string) => void }).thedevToast?.('Fix the highlighted fields');
+        return;
+      }
+
+      const btn = form.querySelector<HTMLButtonElement>('button[type=submit]');
+      if (btn) btn.disabled = true;
+
+      const { error } = await actions.contact(new FormData(form));
+
+      if (btn) btn.disabled = false;
+
+      if (error) {
+        (window as typeof window & { thedevToast?: (msg: string) => void }).thedevToast?.('Could not send — try again.');
         return;
       }
 

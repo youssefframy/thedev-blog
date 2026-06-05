@@ -1,6 +1,4 @@
 ---
-// Newsletter block — form is simulated (no backend yet).
-// Phase 7: wire to a real provider (Buttondown / ConvertKit / etc.)
 ---
 
 <section class="wrap section" style="padding-top:0">
@@ -14,6 +12,7 @@
       <input
         class="nb-input"
         type="email"
+        name="email"
         placeholder="you@domain.dev"
         aria-label="Email address"
         required
@@ -25,24 +24,38 @@
 </section>
 
 <script>
+  import { actions } from 'astro:actions';
+
   document.addEventListener('astro:page-load', () => {
     const form = document.getElementById('newsletterForm') as HTMLFormElement | null;
-    if (!form) return; // newsletter not present on this page
+    if (!form) return;
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const input = form.querySelector<HTMLInputElement>('input[type=email]')!;
+      const btn = form.querySelector<HTMLButtonElement>('button[type=submit]');
+      const toast = (window as typeof window & { thedevToast?: (msg: string) => void }).thedevToast;
       const emailRe = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
       if (!input.value || !emailRe.test(input.value)) {
         input.classList.add('nb-input--error');
         input.focus();
-        const toast = (window as typeof window & { thedevToast?: (msg: string) => void }).thedevToast;
         toast?.('Enter a valid email');
         return;
       }
       input.classList.remove('nb-input--error');
+
+      if (btn) btn.disabled = true;
+      const fd = new FormData();
+      fd.append('email', input.value);
+      const { error } = await actions.newsletter(fd);
+      if (btn) btn.disabled = false;
+
+      if (error) {
+        toast?.('Something went wrong — try again.');
+        return;
+      }
       input.value = '';
-      const toast = (window as typeof window & { thedevToast?: (msg: string) => void }).thedevToast;
       toast?.("You're in. Check your inbox.");
     });
   });

@@ -15,6 +15,11 @@ interface Props {
   ogImage?: string;
   /** data-page attribute for aria-current nav highlighting */
   page?: string;
+  type?: 'website' | 'article';
+  publishedTime?: string;
+  modifiedTime?: string;
+  author?: string;
+  tags?: string[];
 }
 
 const {
@@ -22,6 +27,11 @@ const {
   description = SITE_DESCRIPTION,
   ogImage,
   page = '',
+  type,
+  publishedTime,
+  modifiedTime,
+  author,
+  tags,
 } = Astro.props;
 
 const fullTitle = title === SITE_TITLE ? SITE_TITLE : `${title} — ${SITE_TITLE}`;
@@ -30,7 +40,16 @@ const fullTitle = title === SITE_TITLE ? SITE_TITLE : `${title} — ${SITE_TITLE
 <!doctype html>
 <html lang="en" data-theme="dark">
   <head>
-    <BaseHead title={fullTitle} description={description} ogImage={ogImage} />
+    <BaseHead
+      title={fullTitle}
+      description={description}
+      ogImage={ogImage}
+      type={type}
+      publishedTime={publishedTime}
+      modifiedTime={modifiedTime}
+      author={author}
+      tags={tags}
+    />
 
     <!-- FOUC guard: apply persisted theme before paint + preserve across SPA navigations -->
     <script is:inline>
