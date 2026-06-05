@@ -67,7 +67,7 @@ import '../styles/page.css';
           <span class="contact-method__icon" style="background:var(--pop-blue);color:#fff">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
           </span>
-          <span><b>hello@thedev.blog</b><span>the fastest way to reach me</span></span>
+          <span><b>hello@thedev-blog.tech</b><span>the fastest way to reach me</span></span>
         </a>
         <!-- GitHub -->
         <a class="contact-method" href={SOCIALS.github} target="_blank" rel="noopener">
@@ -164,11 +164,11 @@ import '../styles/page.css';
       e.preventDefault();
       const t = (window as typeof window & { thedevToast?: (msg: string) => void }).thedevToast;
       if (navigator.clipboard) {
-        navigator.clipboard.writeText('hello@thedev.blog')
+        navigator.clipboard.writeText('hello@thedev-blog.tech')
           .then(() => t?.('Email copied to clipboard'))
           .catch(() => t?.('Copy failed'));
       } else {
-        t?.('hello@thedev.blog');
+        t?.('hello@thedev-blog.tech');
       }
     });
   });

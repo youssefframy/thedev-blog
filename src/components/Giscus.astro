@@ -7,11 +7,38 @@ const GISCUS = {
 };
 ---
 
-<section class="wrap wrap--narrow" id="comments" aria-label="Comments" style="padding-top:2.4rem;padding-bottom:3rem"></section>
+<div class="wrap wrap--narrow gsc-section">
+  <div class="gsc-section__head">
+    <span class="kicker">// discussion</span>
+  </div>
+  <div id="comments" class="gsc-mount"></div>
+</div>
+
+<style>
+  .gsc-section {
+    padding-top: 2.8rem;
+    padding-bottom: 2rem;
+    border-top: var(--border-width) solid var(--border-color);
+  }
+
+  .gsc-section__head {
+    margin-bottom: 1.4rem;
+  }
+
+  /* Make the iframe fill the container width */
+  .gsc-mount :global(iframe.giscus-frame) {
+    width: 100% !important;
+    min-width: unset !important;
+  }
+</style>
 
 <script define:vars={{ GISCUS }}>
   function giscusTheme() {
-    return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark_dimmed';
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    // Fall back to built-in themes during local dev (Giscus can't fetch localhost CSS)
+    if (isLocal) return isDark ? 'dark_dimmed' : 'light';
+    return `${window.location.origin}/giscus-${isDark ? 'dark' : 'light'}.css`;
   }
 
   function mountGiscus() {
@@ -37,8 +64,8 @@ const GISCUS = {
     mount.appendChild(s);
   }
 
-  // Sync giscus iframe theme whenever the site theme toggles (data-theme on <html>).
-  // Set up once; the observer persists across SPA navigations.
+  // Sync Giscus iframe theme when site theme toggles (watches data-theme on <html>).
+  // Guard with window sentinel so SPA navigations don't stack duplicate observers.
   if (!window.__giscusThemeObserver) {
     window.__giscusThemeObserver = new MutationObserver(() => {
       const iframe = document.querySelector('iframe.giscus-frame');
@@ -53,6 +80,5 @@ const GISCUS = {
     });
   }
 
-  // Re-mount on every page-load (initial + SPA navigations).
   document.addEventListener('astro:page-load', mountGiscus);
 </script>

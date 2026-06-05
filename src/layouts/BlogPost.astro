@@ -98,11 +98,11 @@ const vtSlug = toVtSlug(postId);
     </div>
   </article>
 
+  <!-- Comments + reactions — right after article, before newsletter -->
+  <Giscus />
+
   <!-- Newsletter -->
   <Newsletter />
-
-  <!-- Comments + reactions -->
-  <Giscus />
 
   <!-- Suggested reads -->
   {suggestions.length > 0 && (

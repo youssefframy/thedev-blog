@@ -1,0 +1,261 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Primer CSS variable overrides ───────────────────────────────────── */
+:root {
+  color-scheme: light;
+
+  --color-canvas-default:   #FFFFFF;
+  --color-canvas-overlay:   #FFFFFF;
+  --color-canvas-inset:     #F4ECDA;
+  --color-canvas-subtle:    #F4ECDA;
+
+  --color-fg-default:       #111111;
+  --color-fg-muted:         #5A5247;
+  --color-fg-subtle:        #8A8275;
+  --color-fg-on-emphasis:   #FFFFFF;
+
+  --color-border-default:   #000000;
+  --color-border-muted:     rgba(0,0,0,0.2);
+  --color-border-subtle:    rgba(0,0,0,0.12);
+
+  --color-neutral-muted:    rgba(0,0,0,0.06);
+  --color-neutral-emphasis: #111111;
+  --color-neutral-emphasis-plus: #111111;
+
+  --color-accent-fg:           #7C3AED;
+  --color-accent-emphasis:     #A78BFA;
+  --color-accent-muted:        rgba(167,139,250,0.15);
+  --color-accent-subtle:       rgba(167,139,250,0.08);
+
+  --color-success-fg:          #16A34A;
+  --color-success-emphasis:    #16A34A;
+  --color-success-muted:       rgba(22,163,74,0.1);
+
+  --color-danger-fg:           #DC2626;
+  --color-danger-emphasis:     #DC2626;
+  --color-danger-muted:        rgba(220,38,38,0.1);
+
+  --color-attention-fg:        #B45309;
+  --color-attention-emphasis:  #B45309;
+  --color-attention-muted:     rgba(180,83,9,0.1);
+
+  /* Buttons */
+  --color-btn-text:                   #111111;
+  --color-btn-bg:                     #FFFFFF;
+  --color-btn-border:                 rgba(0,0,0,0.85);
+  --color-btn-shadow:                 none;
+  --color-btn-inset-shadow:           none;
+  --color-btn-hover-bg:               #F4ECDA;
+  --color-btn-hover-border:           #000000;
+  --color-btn-active-bg:              #E8DFC8;
+  --color-btn-active-border:          #000000;
+  --color-btn-primary-text:           #15102b;
+  --color-btn-primary-bg:             #A78BFA;
+  --color-btn-primary-border:         rgba(0,0,0,0.85);
+  --color-btn-primary-shadow:         none;
+  --color-btn-primary-inset-shadow:   none;
+  --color-btn-primary-hover-bg:       #8B6FDA;
+  --color-btn-primary-hover-border:   #000000;
+  --color-btn-primary-active-bg:      #7C5FC9;
+  --color-btn-primary-active-border:  #000000;
+
+  /* Inputs */
+  --color-input-bg:           #FFFFFF;
+  --color-input-contrast-bg:  #F4ECDA;
+  --color-input-border:       rgba(0,0,0,0.85);
+  --color-input-shadow:       none;
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────── */
+html, body {
+  background: #FEF6E4;
+  color: #111111;
+  font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: #7C3AED; font-weight: 600; }
+a:hover { color: #A78BFA; }
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-weight: 800;
+  color: #111111;
+  letter-spacing: -0.02em;
+}
+
+code, pre, kbd {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* ── Box (card) component ─────────────────────────────────────────────── */
+.Box {
+  border: 3px solid #000000 !important;
+  border-radius: 6px !important;
+  box-shadow: 4px 4px 0 0 #000000 !important;
+  background: #FFFFFF !important;
+}
+
+.Box-header {
+  background: #F4ECDA !important;
+  border-bottom: 2px solid rgba(0,0,0,0.2) !important;
+  border-radius: 3px 3px 0 0 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+}
+
+.Box-footer {
+  background: #F4ECDA !important;
+  border-top: 2px solid rgba(0,0,0,0.12) !important;
+  border-radius: 0 0 3px 3px !important;
+}
+
+.Box-row + .Box-row {
+  border-top: 1px solid rgba(0,0,0,0.1) !important;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────── */
+.btn {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  border: 2px solid #000000 !important;
+  border-radius: 4px !important;
+  box-shadow: 3px 3px 0 0 #000000 !important;
+  background: #FFFFFF !important;
+  color: #111111 !important;
+  transition: transform 120ms cubic-bezier(0.2,0.8,0.2,1),
+              box-shadow 120ms cubic-bezier(0.2,0.8,0.2,1) !important;
+}
+
+.btn:hover {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 5px 5px 0 0 #000000 !important;
+  background: #F4ECDA !important;
+}
+
+.btn:active {
+  transform: translate(3px, 3px) !important;
+  box-shadow: none !important;
+}
+
+.btn-primary {
+  background: #A78BFA !important;
+  color: #15102b !important;
+  border-color: #000000 !important;
+}
+
+.btn-primary:hover {
+  background: #8B6FDA !important;
+  color: #15102b !important;
+}
+
+/* ── Inputs & textarea ────────────────────────────────────────────────── */
+textarea,
+input[type="text"],
+input[type="email"],
+input[type="search"],
+.form-control {
+  font-family: 'Space Grotesk', system-ui, sans-serif !important;
+  border: 2px solid #000000 !important;
+  border-radius: 4px !important;
+  background: #FFFFFF !important;
+  color: #111111 !important;
+  box-shadow: none !important;
+  transition: border-color 120ms, box-shadow 120ms !important;
+}
+
+textarea:focus,
+input:focus,
+.form-control:focus {
+  border-color: #A78BFA !important;
+  box-shadow: 3px 3px 0 0 #A78BFA !important;
+  outline: none !important;
+}
+
+/* ── Reaction items ───────────────────────────────────────────────────── */
+.gsc-social-reaction-summary-item {
+  border: 2px solid #000000 !important;
+  border-radius: 4px !important;
+  box-shadow: 2px 2px 0 0 #000000 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  background: #FFFFFF !important;
+  transition: transform 120ms cubic-bezier(0.2,0.8,0.2,1),
+              box-shadow 120ms cubic-bezier(0.2,0.8,0.2,1) !important;
+}
+
+.gsc-social-reaction-summary-item:hover {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 4px 4px 0 0 #000000 !important;
+  background: #F4ECDA !important;
+}
+
+.gsc-reactions-count {
+  font-family: 'Space Grotesk', system-ui, sans-serif !important;
+  font-weight: 800 !important;
+  color: #111111 !important;
+}
+
+/* ── Tabs ─────────────────────────────────────────────────────────────── */
+.tabnav-tabs {
+  border-bottom: 2px solid #000000 !important;
+  gap: 0 !important;
+}
+
+.tabnav-tab {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+  border: none !important;
+  border-bottom: 3px solid transparent !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #5A5247 !important;
+  transition: color 120ms, border-color 120ms !important;
+  padding: 8px 14px !important;
+  margin-bottom: -2px !important;
+}
+
+.tabnav-tab:hover { color: #111111 !important; }
+
+.tabnav-tab[aria-selected="true"],
+.tabnav-tab.selected {
+  border-bottom-color: #A78BFA !important;
+  color: #111111 !important;
+  background: transparent !important;
+}
+
+/* ── Labels / badges ─────────────────────────────────────────────────── */
+.Label {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-weight: 700 !important;
+  font-size: 10px !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  border: 1.5px solid #000000 !important;
+  border-radius: 3px !important;
+  box-shadow: 1px 1px 0 0 #000000 !important;
+}
+
+/* ── Timeline ─────────────────────────────────────────────────────────── */
+.TimelineItem::before {
+  background: rgba(0,0,0,0.15) !important;
+  width: 2px !important;
+}
+
+.TimelineItem-badge {
+  border: 2px solid #000000 !important;
+  box-shadow: 2px 2px 0 0 #000000 !important;
+}
+
+/* ── Scrollbar ────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #F4ECDA; }
+::-webkit-scrollbar-thumb { background: #000000; border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: #5A5247; }

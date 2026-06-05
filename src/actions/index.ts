@@ -32,8 +32,8 @@ export const server = {
 		}),
 		handler: async ({ name, email, subject, message }) => {
 			const { error } = await resend.emails.send({
-				from: 'thedev contact <hello@thedev.blog>',
-				to: ['hello@thedev.blog'],
+				from: 'thedev contact <hello@thedev-blog.tech>',
+				to: ['hello@thedev-blog.tech'],
 				replyTo: email,
 				subject: `[contact] ${subject} — ${name}`,
 				text: `From: ${name} <${email}>\nSubject: ${subject}\n\n${message}`,

@@ -1,4 +1,4 @@
-import { c as createActionsProxy, p as pipelineSymbol, A as AstroError, a as ActionCalledFromServerError, b as createInvalidVariablesError, g as getEnv$1, s as setOnSetGetEnv, d as defineAction, e as ActionError } from './entrypoint_D7S8EyY-.mjs';
+import { c as createActionsProxy, p as pipelineSymbol, A as AstroError, a as ActionCalledFromServerError, b as createInvalidVariablesError, g as getEnv$1, s as setOnSetGetEnv, d as defineAction, e as ActionError } from './entrypoint_Dy7XGpbU.mjs';
 import * as z from 'zod/v4';
 import { Resend } from 'resend';
 
@@ -216,8 +216,8 @@ const server = {
     }),
     handler: async ({ name, email, subject, message }) => {
       const { error } = await resend.emails.send({
-        from: "thedev contact <hello@thedev.blog>",
-        to: ["hello@thedev.blog"],
+        from: "thedev contact <hello@thedev-blog.tech>",
+        to: ["hello@thedev-blog.tech"],
         replyTo: email,
         subject: `[contact] ${subject} — ${name}`,
         text: `From: ${name} <${email}>

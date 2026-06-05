@@ -5,7 +5,7 @@ import vercel from '@astrojs/vercel';
 import { defineConfig, envField, fontProviders } from 'astro/config';
 
 export default defineConfig({
-	site: 'https://thedev.blog',
+	site: 'https://thedev-blog.tech',
 	adapter: vercel(),
 	prefetch: { prefetchAll: true, defaultStrategy: 'hover' },
 	integrations: [mdx(), sitemap()],

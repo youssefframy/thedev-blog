@@ -4,7 +4,7 @@ import { getArticles } from '../lib/articles';
 import '../styles/page.css';
 
 const articles = await getArticles();
-const feedUrl = `${Astro.site ?? 'https://thedev.blog'}rss.xml`;
+const feedUrl = `${Astro.site ?? 'https://thedev-blog.tech'}rss.xml`;
 ---
 
 <BaseLayout title="RSS feed — thedev" description="Subscribe to thedev over RSS..." page="rss">
@@ -47,7 +47,7 @@ const feedUrl = `${Astro.site ?? 'https://thedev.blog'}rss.xml`;
     <div class="feed-preview">
       <div class="feed-preview__bar">
         <span class="feed-preview__dots"><i></i><i></i><i></i></span>
-        <span>thedev.blog/rss.xml — last {articles.length} items</span>
+        <span>thedev-blog.tech/rss.xml — last {articles.length} items</span>
       </div>
       <div>
         {articles.map((a) => (
