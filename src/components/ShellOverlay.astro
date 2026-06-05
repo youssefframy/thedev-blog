@@ -1,0 +1,21 @@
+---
+import { getArticles } from '../lib/articles';
+const articles = await getArticles();
+---
+
+<script type="application/json" id="shellData" is:inline set:html={JSON.stringify(articles)} />
+
+<script>
+  import { openShell, closeShell, toggleShell } from '../scripts/shell';
+
+  const raw = document.getElementById('shellData')?.textContent ?? '[]';
+  (window as typeof window & { __SHELL_ARTICLES__: unknown[] }).__SHELL_ARTICLES__ = JSON.parse(raw);
+
+  // Escape key closes shell (when open)
+  document.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === 'Escape') closeShell();
+  });
+
+  // Expose toggle for external callers
+  (window as typeof window & { thedevToggleShell: () => void }).thedevToggleShell = toggleShell;
+</script>
