@@ -183,9 +183,16 @@ const PROVIDERS = [
     (function () {
       var dataEl = document.getElementById('providersData');
       if (!dataEl) return;
-      var PROVIDERS: Array<{ id: string; certs: Array<{ code: string; name: string; tier: string }> }> = JSON.parse(dataEl.textContent || '[]');
+      var PROVIDERS: Array<{ id: string; certs: Array<{ code: string; name: string; tier: string }> }>;
+      try {
+        PROVIDERS = JSON.parse(dataEl.textContent!);
+      } catch {
+        console.error('[about] Failed to parse providers data');
+        PROVIDERS = [];
+      }
 
-      var credlyProfile = (document.querySelector('.cert-foot a') as HTMLAnchorElement)?.href || 'https://www.credly.com/';
+      var credlyFootLink = document.querySelector<HTMLAnchorElement>('.cert-foot a[href]');
+      var credlyProfile = credlyFootLink?.href ?? 'https://www.credly.com/';
       var verifyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px"><path d="M7 17 17 7M7 7h10v10"/></svg>';
 
       var tabsEl = document.getElementById('certTabs');
@@ -225,7 +232,9 @@ const PROVIDERS = [
         tabsEl!.querySelectorAll('.cert-tab').forEach(function (b) {
           b.setAttribute('data-active', String(b === btn));
         });
-        renderPanel(btn.dataset.p || '');
+        var providerId = btn.dataset.p;
+        if (!providerId) return;
+        renderPanel(providerId);
       });
     })();
   </script>

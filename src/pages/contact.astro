@@ -155,9 +155,11 @@ import '../styles/page.css';
   document.getElementById('emailMethod')?.addEventListener('click', (e) => {
     e.preventDefault();
     if (navigator.clipboard) {
-      navigator.clipboard.writeText('hello@thedev.blog').then(() => {
-        window.thedevToast && window.thedevToast('Email copied to clipboard');
-      });
+      navigator.clipboard.writeText('hello@thedev.blog')
+        .then(() => window.thedevToast && window.thedevToast('Email copied to clipboard'))
+        .catch(() => window.thedevToast && window.thedevToast('Copy failed'));
+    } else {
+      window.thedevToast && window.thedevToast('hello@thedev.blog');
     }
   });
 </script>
