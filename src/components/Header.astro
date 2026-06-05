@@ -7,7 +7,7 @@ interface Props {
 const { page = '' } = Astro.props;
 ---
 
-<header class="site-head">
+<header class="site-head" transition:name="site-header" transition:animate="none">
   <div class="site-head__bar">
     <!-- Brand -->
     <a class="brand" href="/" aria-label="thedev home">
