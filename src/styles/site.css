@@ -322,3 +322,24 @@ img { max-width: 100%; display: block; }
 .term-link:hover { background: #4ADE80; color: #08130c; text-decoration: none; }
 
 @media (max-width: 560px) { .term-shell { height: 70vh; } .term-shell__hint { display: none; } }
+
+/* ── View transition timing ───────────────────────────────────────────────
+   Astro's default is ~180ms which can look like a flash/lag on fast hardware.
+   350ms gives the eye enough time to follow the morph without feeling sluggish. */
+@media (prefers-reduced-motion: no-preference) {
+  /* Page crossfade (the root fade between pages) */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 350ms;
+    animation-timing-function: ease-in-out;
+  }
+  /* Shared-element morphs: title, badge, thumb */
+  ::view-transition-group(*) {
+    animation-duration: 350ms;
+    animation-timing-function: ease-in-out;
+  }
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 350ms;
+  }
+}

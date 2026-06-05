@@ -73,7 +73,7 @@
 .codeblock pre code { font-family: var(--font-mono); }
 
 /* author bio + share */
-.art-foot { margin-top: 3rem; }
+.art-foot { margin-top: 3rem; margin-bottom: 3rem; }
 .author-card { display: flex; gap: 1.2rem; align-items: flex-start; background: var(--surface); border: var(--border-width) solid var(--border-color); border-radius: var(--radius-base); box-shadow: var(--shadow); padding: 1.5rem; }
 .author-card__av { width: 64px; height: 64px; flex: none; border: var(--border-width) solid var(--border-color); border-radius: var(--radius-base); background: var(--pop-green); display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 26px; color: #08130c; box-shadow: var(--shadow-sm); transform: rotate(-3deg); }
 .author-card h4 { font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; margin: 0 0 .3rem; }
