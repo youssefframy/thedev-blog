@@ -40,7 +40,7 @@ const displayReadMins = readMins ?? 5;
     <header class="wrap wrap--narrow art-head">
       <div class="art-breadcrumb">
         <a href="/">~/thedev</a> /
-        <a href={`/#latest`}>{category.toLowerCase().replace(' ', '-')}</a> /
+        <a href="/articles">{category.toLowerCase().replace(' ', '-')}</a> /
         <span>{title.toLowerCase().replace(/\s+/g, '-').slice(0, 30)}.md</span>
       </div>
       <span class="nb-badge nb-badge--square" style={`background:${badgeBg};color:${badgeColor}`}>{category}</span>
@@ -92,10 +92,10 @@ const displayReadMins = readMins ?? 5;
 
   <!-- Suggested reads -->
   {suggestions.length > 0 && (
-    <section class="wrap section" style="padding-top:0">
+    <section class="wrap section art-suggest" style="padding-top:0">
       <div class="posts-head">
         <h2>Keep reading</h2>
-        <a class="kicker" href="/#latest" style="text-decoration:none">all posts →</a>
+        <a class="kicker" href="/articles" style="text-decoration:none">all posts →</a>
       </div>
       <div class="suggest">
         {suggestions.map((a, i) => (

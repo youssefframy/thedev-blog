@@ -12,7 +12,7 @@ export const WRITING_SINCE = 2019;
 // ---- Navigation ----
 export const NAV = [
 	{ label: 'Home', href: '/', key: 'home' },
-	{ label: 'Articles', href: '/#latest', key: 'articles' },
+	{ label: 'Articles', href: '/articles', key: 'articles' },
 	{ label: 'About', href: '/about', key: 'about' },
 	{ label: 'Contact', href: '/contact', key: 'contact' },
 ] as const;

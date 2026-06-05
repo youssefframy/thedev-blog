@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FilterablePosts from '../components/FilterablePosts.astro';
+import { getArticles } from '../lib/articles';
+import { SITE_DESCRIPTION } from '../consts';
+
+const articles = await getArticles();
+---
+
+<BaseLayout title="Articles" description={SITE_DESCRIPTION} page="articles">
+  <FilterablePosts articles={articles} />
+</BaseLayout>
