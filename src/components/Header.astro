@@ -53,8 +53,8 @@ const { page = '' } = Astro.props;
         </svg>
       </button>
 
-      <!-- RSS link -->
-      <a class="icon-btn" href="/rss.xml" aria-label="RSS feed" title="RSS feed">
+      <!-- RSS link — data-astro-reload: /rss.xml is not an HTML page, skip router -->
+      <a class="icon-btn" href="/rss.xml" aria-label="RSS feed" title="RSS feed" data-astro-reload>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/>
           <circle cx="5" cy="19" r="1.5" fill="currentColor"/>
@@ -88,24 +88,28 @@ const { page = '' } = Astro.props;
         {n.label}
       </a>
     ))}
-    <a href="/rss.xml">RSS feed</a>
+    <a href="/rss.xml" data-astro-reload>RSS feed</a>
   </nav>
 </header>
 
 <script>
-  const burger = document.getElementById('burger');
-  const mobileNav = document.getElementById('mobileNav');
-  if (burger && mobileNav) {
-    burger.addEventListener('click', () => {
-      const open = mobileNav.classList.toggle('open');
-      burger.setAttribute('aria-expanded', String(open));
-    });
-  }
+  // Re-wire button listeners after each client-side navigation — the Header is
+  // replaced on every swap so getElementById must run against fresh DOM each time.
+  document.addEventListener('astro:page-load', () => {
+    const burger = document.getElementById('burger');
+    const mobileNav = document.getElementById('mobileNav');
+    if (burger && mobileNav) {
+      burger.addEventListener('click', () => {
+        const open = mobileNav.classList.toggle('open');
+        burger.setAttribute('aria-expanded', String(open));
+      });
+    }
 
-  const shellTrigger = document.getElementById('shellTrigger');
-  if (shellTrigger) {
-    shellTrigger.addEventListener('click', () => {
-      (window as typeof window & { thedevOpenShell?: () => void }).thedevOpenShell?.();
-    });
-  }
+    const shellTrigger = document.getElementById('shellTrigger');
+    if (shellTrigger) {
+      shellTrigger.addEventListener('click', () => {
+        (window as typeof window & { thedevOpenShell?: () => void }).thedevOpenShell?.();
+      });
+    }
+  });
 </script>

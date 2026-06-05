@@ -1,5 +1,6 @@
 ---
 import { Font } from 'astro:assets';
+import { ClientRouter } from 'astro:transitions';
 import { SITE_TITLE } from '../consts';
 
 interface Props {
@@ -53,3 +54,6 @@ const ogImageUrl = ogImage ?? new URL('/favicon.svg', Astro.site).href;
 <meta property="twitter:title" content={title} />
 <meta property="twitter:description" content={description} />
 <meta property="twitter:image" content={ogImageUrl} />
+
+<!-- Client-side routing + view transitions (SPA mode) -->
+<ClientRouter />

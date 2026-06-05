@@ -24,9 +24,9 @@
 </div>
 
 <script>
-  (function typeTerminal() {
+  function typeTerminal() {
     const body = document.getElementById('heroTermBody');
-    if (!body) return;
+    if (!body) return; // not present on this page
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const lines = Array.from(body.children) as HTMLElement[];
@@ -65,5 +65,8 @@
     setTimeout(() => {
       data.forEach((d) => { if (!d.spacer) d.el.innerHTML = d.html; });
     }, 4500);
-  })();
+  }
+
+  // Run on first load and after every client-side navigation
+  document.addEventListener('astro:page-load', typeTerminal);
 </script>

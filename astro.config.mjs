@@ -6,6 +6,7 @@ import { defineConfig, fontProviders } from 'astro/config';
 // TODO: update site to your real domain before deploying
 export default defineConfig({
 	site: 'https://thedev.blog',
+	prefetch: { prefetchAll: true, defaultStrategy: 'hover' },
 	integrations: [mdx(), sitemap()],
 	fonts: [
 		{

@@ -77,12 +77,14 @@ const feedUrl = `${Astro.site ?? 'https://thedev.blog'}rss.xml`;
 </BaseLayout>
 
 <script>
-document.getElementById('copyRss')?.addEventListener('click', () => {
-  const urlInput = document.getElementById('rssUrl') as HTMLInputElement | null;
-  const url = urlInput?.value ?? '';
-  const toast = (window as typeof window & { thedevToast?: (msg: string) => void }).thedevToast;
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(url).then(() => toast?.('Feed URL copied'));
-  }
-});
+  document.addEventListener('astro:page-load', () => {
+    document.getElementById('copyRss')?.addEventListener('click', () => {
+      const urlInput = document.getElementById('rssUrl') as HTMLInputElement | null;
+      const url = urlInput?.value ?? '';
+      const toast = (window as typeof window & { thedevToast?: (msg: string) => void }).thedevToast;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => toast?.('Feed URL copied'));
+      }
+    });
+  });
 </script>

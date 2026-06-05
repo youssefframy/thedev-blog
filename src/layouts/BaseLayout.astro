@@ -32,7 +32,7 @@ const fullTitle = title === SITE_TITLE ? SITE_TITLE : `${title} — ${SITE_TITLE
   <head>
     <BaseHead title={fullTitle} description={description} ogImage={ogImage} />
 
-    <!-- FOUC guard: apply persisted theme before paint -->
+    <!-- FOUC guard: apply persisted theme before paint + preserve across SPA navigations -->
     <script is:inline>
       (function () {
         try {
@@ -40,6 +40,14 @@ const fullTitle = title === SITE_TITLE ? SITE_TITLE : `${title} — ${SITE_TITLE
           document.documentElement.setAttribute('data-theme', t);
         } catch (_) {}
       })();
+      // Before each client-side swap, stamp the saved theme on the incoming document
+      // so the router's root-attribute swap never resets it to the hardcoded 'dark' default.
+      document.addEventListener('astro:before-swap', function (e) {
+        try {
+          var t = localStorage.getItem('thedev-theme') || 'dark';
+          e.newDocument.documentElement.setAttribute('data-theme', t);
+        } catch (_) {}
+      });
     </script>
 
   </head>
@@ -59,11 +67,13 @@ const fullTitle = title === SITE_TITLE ? SITE_TITLE : `${title} — ${SITE_TITLE
       import { initThemeToggle } from '../scripts/theme';
       import { wireReveal } from '../scripts/reveal';
       import { toast } from '../scripts/toast';
-      initThemeToggle();
-      wireReveal();
-      // Make toast available globally for inline scripts
+
+      // ── One-time globals (document/window survive SPA swaps) ──────────────
+
+      // Expose toast globally for components that can't import it directly
       (window as typeof window & { thedevToast: typeof toast }).thedevToast = toast;
-      // Backtick or tilde opens the interactive shell
+
+      // Backtick / tilde: open the interactive shell from anywhere
       document.addEventListener('keydown', (e) => {
         if (
           (e.key === '`' || e.key === '~') &&
@@ -73,6 +83,13 @@ const fullTitle = title === SITE_TITLE ? SITE_TITLE : `${title} — ${SITE_TITLE
           e.preventDefault();
           (window as typeof window & { thedevOpenShell?: () => void }).thedevOpenShell?.();
         }
+      });
+
+      // ── Re-wire DOM-dependent scripts after every navigation ──────────────
+      // astro:page-load fires on first load AND after each client-side swap.
+      document.addEventListener('astro:page-load', () => {
+        initThemeToggle(); // wires fresh #themeToggle button, restores icon
+        wireReveal();      // sets up IntersectionObserver on .reveal elements
       });
     </script>
   </body>

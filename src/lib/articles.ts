@@ -9,6 +9,11 @@ const CAT_CLASS: Record<Category, string> = {
 	Notes: 't-notes',
 };
 
+/** Converts an article id to a valid CSS view-transition-name (no slashes, spaces, etc.) */
+export function toVtSlug(id: string): string {
+	return id.replace(/[^a-zA-Z0-9_-]/g, '-');
+}
+
 export type Article = {
 	id: string;
 	title: string;
@@ -20,6 +25,8 @@ export type Article = {
 	date: string;
 	readMins: number;
 	url: string;
+	/** Safe CSS ident for view-transition-name attributes */
+	vtSlug: string;
 };
 
 export async function getArticles(): Promise<Article[]> {
@@ -46,6 +53,7 @@ export async function getArticles(): Promise<Article[]> {
 				date,
 				readMins,
 				url: `/blog/${post.id}/`,
+				vtSlug: toVtSlug(post.id),
 			};
 		});
 }

@@ -5,8 +5,10 @@ import type { HTMLAttributes } from 'astro/types';
 interface Props extends HTMLAttributes<'a'> {
   article: Article;
   index: number;
+  /** Set to false to suppress transition:name directives (e.g. the hidden featured-dup card) */
+  vt?: boolean;
 }
-const { article: a, index: i, style: extraStyle, ...rest } = Astro.props;
+const { article: a, index: i, vt = true, style: extraStyle, ...rest } = Astro.props;
 const delay = Math.min(Math.max(i, 0), 8) * 55;
 ---
 
@@ -17,12 +19,12 @@ const delay = Math.min(Math.max(i, 0), 8) * 55;
   style={[`transition-delay:${delay}ms`, extraStyle].filter(Boolean).join(';')}
   {...rest}
 >
-  <div class={`card__thumb ${a.catClass}`}>
-    <span class="nb-badge nb-badge--square cat-tag">{a.cat}</span>
+  <div class={`card__thumb ${a.catClass}`} transition:name={vt ? `vt-thumb-${a.vtSlug}` : undefined}>
+    <span class="nb-badge nb-badge--square cat-tag" transition:name={vt ? `vt-badge-${a.vtSlug}` : undefined}>{a.cat}</span>
     <span class="glyph">{a.glyph}</span>
   </div>
   <div class="card__body">
-    <h3 class="card__title">{a.title}</h3>
+    <h3 class="card__title" transition:name={vt ? `vt-title-${a.vtSlug}` : undefined}>{a.title}</h3>
     <p class="card__excerpt">{a.excerpt}</p>
     <div class="card__meta">
       {a.date}

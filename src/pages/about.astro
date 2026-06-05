@@ -180,9 +180,9 @@ const PROVIDERS = [
 
   <!-- Client script: certification tab switching -->
   <script>
-    (function () {
+    document.addEventListener('astro:page-load', () => {
       var dataEl = document.getElementById('providersData');
-      if (!dataEl) return;
+      if (!dataEl) return; // only present on /about
       var PROVIDERS: Array<{ id: string; certs: Array<{ code: string; name: string; tier: string }> }>;
       try {
         PROVIDERS = JSON.parse(dataEl.textContent!);
@@ -236,7 +236,7 @@ const PROVIDERS = [
         if (!providerId) return;
         renderPanel(providerId);
       });
-    })();
+    });
   </script>
 
 </BaseLayout>

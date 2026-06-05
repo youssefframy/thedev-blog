@@ -3,7 +3,7 @@ import type { CollectionEntry } from 'astro:content';
 import BaseLayout from './BaseLayout.astro';
 import Newsletter from '../components/Newsletter.astro';
 import PostCard from '../components/PostCard.astro';
-import { getArticles } from '../lib/articles';
+import { getArticles, toVtSlug } from '../lib/articles';
 import '../styles/article.css';
 
 type Props = CollectionEntry<'blog'>['data'] & { postId: string };
@@ -29,6 +29,7 @@ const suggestions = allArticles.filter((a) => a.id !== postId).slice(0, 3);
 const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
 const displayReadMins = readMins ?? 5;
+const vtSlug = toVtSlug(postId);
 ---
 
 <BaseLayout title={title} description={description} page="articles">
@@ -43,8 +44,8 @@ const displayReadMins = readMins ?? 5;
         <a href="/articles">{category.toLowerCase().replace(' ', '-')}</a> /
         <span>{title.toLowerCase().replace(/\s+/g, '-').slice(0, 30)}.md</span>
       </div>
-      <span class="nb-badge nb-badge--square" style={`background:${badgeBg};color:${badgeColor}`}>{category}</span>
-      <h1 class="art-title">{title}</h1>
+      <span class="nb-badge nb-badge--square" style={`background:${badgeBg};color:${badgeColor}`} transition:name={`vt-badge-${vtSlug}`}>{category}</span>
+      <h1 class="art-title" transition:name={`vt-title-${vtSlug}`}>{title}</h1>
       <div class="art-meta">
         <span class="av">td</span>
         <span class="who">thedev</span>
@@ -109,92 +110,104 @@ const displayReadMins = readMins ?? 5;
 <script>
   interface TocItem { el: HTMLHeadingElement; link: HTMLAnchorElement; }
 
-  // ---- build TOC from headings ----
-  const prose = document.getElementById('prose');
-  const tocList = document.getElementById('tocList');
-  const items: TocItem[] = [];
+  // Module-level AbortController: abort previous article's window listeners before
+  // adding new ones, so they don't accumulate across multiple article visits.
+  let _scrollAC: AbortController | null = null;
 
-  if (prose && tocList) {
-    const heads = prose.querySelectorAll<HTMLHeadingElement>('h2, h3');
-    heads.forEach((h) => {
-      if (!h.id) return;
-      const li = document.createElement('li');
-      const a = document.createElement('a');
-      a.href = '#' + h.id;
-      a.textContent = h.textContent;
-      if (h.tagName === 'H3') a.className = 'lvl3';
-      a.addEventListener('click', (e) => {
-        e.preventDefault();
-        const top = h.getBoundingClientRect().top + window.pageYOffset - 96;
-        window.scrollTo({ top, behavior: 'smooth' });
-        history.replaceState(null, '', '#' + h.id);
+  document.addEventListener('astro:page-load', () => {
+    // ---- build TOC from headings ----
+    const prose = document.getElementById('prose');
+    if (!prose) return; // fires on every page; only wire on article pages
+
+    const tocList = document.getElementById('tocList');
+    const items: TocItem[] = [];
+
+    if (tocList) {
+      tocList.innerHTML = ''; // clear stale TOC from a previous article visit
+      const heads = prose.querySelectorAll<HTMLHeadingElement>('h2, h3');
+      heads.forEach((h) => {
+        if (!h.id) return;
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent;
+        if (h.tagName === 'H3') a.className = 'lvl3';
+        a.addEventListener('click', (e) => {
+          e.preventDefault();
+          const top = h.getBoundingClientRect().top + window.pageYOffset - 96;
+          window.scrollTo({ top, behavior: 'smooth' });
+          history.replaceState(null, '', '#' + h.id);
+        });
+        li.appendChild(a);
+        tocList.appendChild(li);
+        items.push({ el: h, link: a });
       });
-      li.appendChild(a);
-      tocList.appendChild(li);
-      items.push({ el: h, link: a });
-    });
-  }
+    }
 
-  // ---- scrollspy + reading progress ----
-  const progressEl = document.getElementById('progress') as HTMLElement | null;
+    // ---- scrollspy + reading progress ----
+    const progressEl = document.getElementById('progress') as HTMLElement | null;
 
-  let rafPending = false;
-  function onScroll() {
-    if (rafPending) return;
-    rafPending = true;
-    requestAnimationFrame(() => {
-      rafPending = false;
-      const st = window.pageYOffset || document.documentElement.scrollTop;
-      const docH = document.documentElement.scrollHeight - window.innerHeight;
-      if (progressEl) progressEl.style.width = (docH > 0 ? Math.min(100, (st / docH) * 100) : 0) + '%';
+    let rafPending = false;
+    function onScroll() {
+      if (rafPending) return;
+      rafPending = true;
+      requestAnimationFrame(() => {
+        rafPending = false;
+        const st = window.pageYOffset || document.documentElement.scrollTop;
+        const docH = document.documentElement.scrollHeight - window.innerHeight;
+        if (progressEl) progressEl.style.width = (docH > 0 ? Math.min(100, (st / docH) * 100) : 0) + '%';
 
-      let current: TocItem | null = items[0] ?? null;
-      for (const it of items) {
-        if (it.el.getBoundingClientRect().top - 100 <= 0) current = it;
-      }
-      items.forEach((it) => it.link.classList.toggle('active', it === current));
-    });
-  }
-  window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', onScroll);
-  onScroll();
-
-  // ---- inject copy-button chrome around <pre> blocks ----
-  const copySVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
-  const checkSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
-  const toast = (window as typeof window & { thedevToast?: (msg: string) => void }).thedevToast;
-
-  function wireCopyButton(btn: HTMLButtonElement, preEl: HTMLPreElement) {
-    btn.innerHTML = copySVG + '<span>Copy</span>';
-    btn.addEventListener('click', () => {
-      const text = preEl.innerText;
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(() => {
-          btn.innerHTML = checkSVG + '<span>Copied</span>';
-          toast?.('Copied to clipboard');
-          setTimeout(() => { btn.innerHTML = copySVG + '<span>Copy</span>'; }, 1600);
-        }).catch(() => { toast?.('Copy failed'); });
-      } else {
-        try {
-          const ta = document.createElement('textarea');
-          ta.value = text;
-          ta.style.cssText = 'position:fixed;opacity:0';
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand('copy');
-          document.body.removeChild(ta);
-          btn.innerHTML = checkSVG + '<span>Copied</span>';
-          setTimeout(() => { btn.innerHTML = copySVG + '<span>Copy</span>'; }, 1600);
-        } catch {
-          toast?.('Copy not supported');
+        let current: TocItem | null = items[0] ?? null;
+        for (const it of items) {
+          if (it.el.getBoundingClientRect().top - 100 <= 0) current = it;
         }
-      }
-    });
-  }
+        items.forEach((it) => it.link.classList.toggle('active', it === current));
+      });
+    }
 
-  if (prose) {
+    // Abort previous article's window listeners, then register fresh ones with a signal
+    _scrollAC?.abort();
+    _scrollAC = new AbortController();
+    const { signal } = _scrollAC;
+    window.addEventListener('scroll', onScroll, { passive: true, signal });
+    window.addEventListener('resize', onScroll, { signal });
+    onScroll();
+
+    // ---- inject copy-button chrome around <pre> blocks ----
+    const copySVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+    const checkSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+    const toast = (window as typeof window & { thedevToast?: (msg: string) => void }).thedevToast;
+
+    function wireCopyButton(btn: HTMLButtonElement, preEl: HTMLPreElement) {
+      btn.innerHTML = copySVG + '<span>Copy</span>';
+      btn.addEventListener('click', () => {
+        const text = preEl.innerText;
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(text).then(() => {
+            btn.innerHTML = checkSVG + '<span>Copied</span>';
+            toast?.('Copied to clipboard');
+            setTimeout(() => { btn.innerHTML = copySVG + '<span>Copy</span>'; }, 1600);
+          }).catch(() => { toast?.('Copy failed'); });
+        } else {
+          try {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.cssText = 'position:fixed;opacity:0';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            btn.innerHTML = checkSVG + '<span>Copied</span>';
+            setTimeout(() => { btn.innerHTML = copySVG + '<span>Copy</span>'; }, 1600);
+          } catch {
+            toast?.('Copy not supported');
+          }
+        }
+      });
+    }
+
     prose.querySelectorAll<HTMLPreElement>('pre').forEach((pre) => {
-      // skip if already wrapped
+      // skip if already wrapped (shouldn't happen with fresh DOM, but guard anyway)
       if (pre.parentElement?.classList.contains('codeblock')) return;
 
       const codeEl = pre.querySelector('code');
@@ -230,5 +243,5 @@ const displayReadMins = readMins ?? 5;
         wireCopyButton(copyBtn, pre);
       }
     });
-  }
+  });
 </script>

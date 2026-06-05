@@ -11,6 +11,4 @@ const articles = await getArticles();
 
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION} page="home">
   <Hero articleCount={articles.length} />
-  <FilterablePosts articles={articles} />
-  <Newsletter />
 </BaseLayout>

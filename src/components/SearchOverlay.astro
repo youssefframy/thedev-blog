@@ -3,7 +3,7 @@ import { getArticles } from '../lib/articles';
 const articles = await getArticles();
 ---
 
-<div class="search-overlay" id="searchOverlay">
+<div class="search-overlay" id="searchOverlay" transition:persist="search">
   <div class="search-overlay__scrim" data-close></div>
   <div class="search-box" role="dialog" aria-modal="true" aria-label="Search">
 
@@ -127,7 +127,8 @@ const articles = await getArticles();
 
   function closeSearch(): void {
     overlay.classList.remove('open');
-    _returnFocusEl?.focus();
+    // Guard: the element that triggered open may no longer be in the DOM after a swap
+    if (_returnFocusEl?.isConnected) _returnFocusEl.focus();
     _returnFocusEl = null;
   }
 
@@ -142,8 +143,11 @@ const articles = await getArticles();
   input.addEventListener('input', () => renderResults(input.value));
   input.addEventListener('keydown', onSearchKey);
 
-  // Wire header search trigger
-  document.getElementById('searchTrigger')?.addEventListener('click', openSearch);
+  // Wire header search trigger via delegation — the Header is replaced on each SPA
+  // navigation so getElementById would point to a stale node after the first swap.
+  document.addEventListener('click', (e) => {
+    if ((e.target as Element).closest('#searchTrigger')) openSearch();
+  });
 
   // Global keyboard shortcuts (search parts only — no shell/backtick)
   document.addEventListener('keydown', (e) => {
@@ -160,6 +164,11 @@ const articles = await getArticles();
     }
   });
 
-  // Expose globally for external callers (e.g. header button, shell trigger)
+  // Close the overlay when a navigation completes (e.g. user clicked a search result)
+  document.addEventListener('astro:after-swap', () => {
+    if (overlay.classList.contains('open')) closeSearch();
+  });
+
+  // Expose globally for external callers (e.g. shell trigger)
   (window as typeof window & { thedevOpenSearch: typeof openSearch }).thedevOpenSearch = openSearch;
 </script>

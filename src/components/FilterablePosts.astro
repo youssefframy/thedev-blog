@@ -44,7 +44,7 @@ const catCounts = CATS.reduce<Record<string, number>>((acc, cat) => {
   <!-- Note: featured article also appears here (hidden) so category filters show it -->
   <div class="post-grid" id="postGrid">
     {featured && (
-      <PostCard article={featured} index={0} data-featured-dup="true" style="display:none" />
+      <PostCard article={featured} index={0} vt={false} data-featured-dup="true" style="display:none" />
     )}
     {rest.map((article, i) => (
       <PostCard article={article} index={i + 1} />
@@ -57,82 +57,88 @@ const catCounts = CATS.reduce<Record<string, number>>((acc, cat) => {
 </main>
 
 <script>
-  const filterbar = document.getElementById('filterbar')!;
-  const postGrid = document.getElementById('postGrid')!;
-  const featuredCard = document.getElementById('featuredCard') as HTMLElement | null;
-  const noPosts = document.getElementById('noPosts') as HTMLElement;
-  const resultCount = document.getElementById('resultCount')!;
-  const allCards = Array.from(postGrid.querySelectorAll<HTMLElement>('.card'));
-  const totalRest = allCards.length;
+  // astro:page-load fires on first load and after every client-side navigation.
+  // All element references are captured fresh so they always point to current DOM.
+  document.addEventListener('astro:page-load', () => {
+    const filterbar = document.getElementById('filterbar');
+    if (!filterbar) return; // only present on the homepage
 
-  let active = 'All';
+    const postGrid = document.getElementById('postGrid')!;
+    const featuredCard = document.getElementById('featuredCard') as HTMLElement | null;
+    const noPosts = document.getElementById('noPosts') as HTMLElement;
+    const resultCount = document.getElementById('resultCount')!;
+    const allCards = Array.from(postGrid.querySelectorAll<HTMLElement>('.card'));
+    const totalRest = allCards.length;
 
-  function staggerIn(cards: HTMLElement[]) {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduce) { cards.forEach((c) => c.classList.add('in')); return; }
-    cards.forEach((c, i) => {
-      c.style.transitionDelay = `${Math.min(i, 8) * 55}ms`;
-      c.classList.add('reveal');
-    });
-    requestAnimationFrame(() => cards.forEach((c) => c.classList.add('in')));
-    setTimeout(() => {
-      cards.forEach((c) => {
-        c.classList.remove('reveal', 'in');
-        c.style.transitionDelay = '';
+    let active = 'All';
+
+    function staggerIn(cards: HTMLElement[]) {
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce) { cards.forEach((c) => c.classList.add('in')); return; }
+      cards.forEach((c, i) => {
+        c.style.transitionDelay = `${Math.min(i, 8) * 55}ms`;
+        c.classList.add('reveal');
       });
-    }, 650 + Math.min(cards.length, 8) * 55);
-  }
-
-  function applyFilter(cat: string) {
-    active = cat;
-
-    // Update chip aria-pressed
-    filterbar.querySelectorAll<HTMLButtonElement>('.chip').forEach((btn) => {
-      btn.setAttribute('aria-pressed', String(btn.dataset.cat === cat));
-    });
-
-    // Show/hide featured card (only in "All" view)
-    if (featuredCard) {
-      featuredCard.style.display = cat === 'All' ? '' : 'none';
+      requestAnimationFrame(() => cards.forEach((c) => c.classList.add('in')));
+      setTimeout(() => {
+        cards.forEach((c) => {
+          c.classList.remove('reveal', 'in');
+          c.style.transitionDelay = '';
+        });
+      }, 650 + Math.min(cards.length, 8) * 55);
     }
 
-    // Show/hide grid cards
-    // For "All": hide the featured-dup, show rest cards
-    // For category: show featured-dup if its category matches, show matching rest cards
-    const visible: HTMLElement[] = [];
-    allCards.forEach((card) => {
-      const isDup = card.dataset.featuredDup === 'true';
-      let show: boolean;
-      if (cat === 'All') {
-        show = !isDup; // dup is hidden in All view; rest are shown
-      } else {
-        show = card.dataset.cat === cat; // both dup and rest shown if category matches
+    function applyFilter(cat: string) {
+      active = cat;
+
+      // Update chip aria-pressed
+      filterbar.querySelectorAll<HTMLButtonElement>('.chip').forEach((btn) => {
+        btn.setAttribute('aria-pressed', String(btn.dataset.cat === cat));
+      });
+
+      // Show/hide featured card (only in "All" view)
+      if (featuredCard) {
+        featuredCard.style.display = cat === 'All' ? '' : 'none';
       }
-      card.style.display = show ? '' : 'none';
-      if (show) visible.push(card);
+
+      // Show/hide grid cards
+      // For "All": hide the featured-dup, show rest cards
+      // For category: show featured-dup if its category matches, show matching rest cards
+      const visible: HTMLElement[] = [];
+      allCards.forEach((card) => {
+        const isDup = card.dataset.featuredDup === 'true';
+        let show: boolean;
+        if (cat === 'All') {
+          show = !isDup; // dup is hidden in All view; rest are shown
+        } else {
+          show = card.dataset.cat === cat; // both dup and rest shown if category matches
+        }
+        card.style.display = show ? '' : 'none';
+        if (show) visible.push(card);
+      });
+
+      // Compute count
+      const count = cat === 'All' ? totalRest : visible.length;
+      resultCount.textContent = `${count} ${count === 1 ? 'post' : 'posts'}`;
+
+      // Empty state
+      noPosts.style.display = visible.length === 0 ? 'block' : 'none';
+
+      // Stagger entrance for newly visible cards
+      staggerIn(visible);
+    }
+
+    filterbar.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.chip');
+      if (!btn) return;
+      applyFilter(btn.dataset.cat ?? 'All');
     });
 
-    // Compute count
-    const count = cat === 'All' ? totalRest : visible.length;
-    resultCount.textContent = `${count} ${count === 1 ? 'post' : 'posts'}`;
-
-    // Empty state
-    noPosts.style.display = visible.length === 0 ? 'block' : 'none';
-
-    // Stagger entrance for newly visible cards
-    staggerIn(visible);
-  }
-
-  filterbar.addEventListener('click', (e) => {
-    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.chip');
-    if (!btn) return;
-    applyFilter(btn.dataset.cat ?? 'All');
+    // Initial entrance stagger for cards visible on load (exclude the hidden dup)
+    staggerIn(allCards.filter((c) => {
+      if (c.dataset.featuredDup === 'true') return false;
+      const r = c.getBoundingClientRect();
+      return r.top < window.innerHeight;
+    }));
   });
-
-  // Initial entrance stagger for cards visible on load (exclude the hidden dup)
-  staggerIn(allCards.filter((c) => {
-    if (c.dataset.featuredDup === 'true') return false;
-    const r = c.getBoundingClientRect();
-    return r.top < window.innerHeight;
-  }));
 </script>

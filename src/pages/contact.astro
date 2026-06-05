@@ -103,16 +103,11 @@ import '../styles/page.css';
 </BaseLayout>
 
 <script>
-  declare global {
-    interface Window {
-      thedevToast?: (msg: string) => void;
-    }
-  }
+  document.addEventListener('astro:page-load', () => {
+    const form = document.getElementById('contactForm') as HTMLFormElement | null;
+    const success = document.getElementById('formSuccess');
+    if (!form || !success) return; // only present on /contact
 
-  const form = document.getElementById('contactForm') as HTMLFormElement | null;
-  const success = document.getElementById('formSuccess');
-
-  if (form && success) {
     function setErr(name: string, show: boolean) {
       const msg = form!.querySelector<HTMLElement>('[data-err="' + name + '"]');
       const field = form!.querySelector<HTMLElement>('[name="' + name + '"]');
@@ -132,13 +127,13 @@ import '../styles/page.css';
       if (!messageVal) { setErr('message', true); ok = false; } else { setErr('message', false); }
 
       if (!ok) {
-        window.thedevToast && window.thedevToast('Fix the highlighted fields');
+        (window as typeof window & { thedevToast?: (msg: string) => void }).thedevToast?.('Fix the highlighted fields');
         return;
       }
 
       form.style.display = 'none';
       success!.classList.add('show');
-      window.thedevToast && window.thedevToast('Message sent');
+      (window as typeof window & { thedevToast?: (msg: string) => void }).thedevToast?.('Message sent');
     });
 
     document.getElementById('sendAnother')?.addEventListener('click', () => {
@@ -150,16 +145,17 @@ import '../styles/page.css';
     form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea').forEach((f) => {
       f.addEventListener('input', () => { setErr(f.name, false); });
     });
-  }
 
-  document.getElementById('emailMethod')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText('hello@thedev.blog')
-        .then(() => window.thedevToast && window.thedevToast('Email copied to clipboard'))
-        .catch(() => window.thedevToast && window.thedevToast('Copy failed'));
-    } else {
-      window.thedevToast && window.thedevToast('hello@thedev.blog');
-    }
+    document.getElementById('emailMethod')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const t = (window as typeof window & { thedevToast?: (msg: string) => void }).thedevToast;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText('hello@thedev.blog')
+          .then(() => t?.('Email copied to clipboard'))
+          .catch(() => t?.('Copy failed'));
+      } else {
+        t?.('hello@thedev.blog');
+      }
+    });
   });
 </script>

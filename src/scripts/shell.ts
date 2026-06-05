@@ -1,4 +1,5 @@
 import type { Article } from '../lib/articles';
+import { navigate } from 'astro:transitions/client';
 
 declare global {
   interface Window {
@@ -52,6 +53,18 @@ const shell = {
   built: false,
   draft: '',
 };
+
+// Reference to the shell DOM element — stored so it can be re-appended to the
+// new <body> after each SPA navigation (ClientRouter replaces body on every swap).
+let _shellEl: HTMLElement | null = null;
+
+// After each client-side navigation, re-attach the shell to the new body so
+// the terminal and its scrollback history survive across pages.
+document.addEventListener('astro:after-swap', () => {
+  if (_shellEl && !document.body.contains(_shellEl)) {
+    document.body.appendChild(_shellEl);
+  }
+});
 
 try {
   shell.hist = JSON.parse(localStorage.getItem('thedev-shell-hist') ?? '[]');
@@ -228,7 +241,7 @@ function runShell(raw: string): void {
       const o = findFile(arg);
       if (!o) { shPrint('<span class="t-err">open: ' + esc(arg) + ': no such file</span>'); break; }
       shPrint('<span class="t-dim">opening ' + esc(o.title) + '…</span>');
-      setTimeout(() => { window.location.href = o.url; }, 450);
+      setTimeout(() => { closeShell(); navigate(o.url); }, 450);
       break;
     }
     case 'search':
@@ -258,23 +271,24 @@ function runShell(raw: string): void {
     }
     case 'about': {
       shPrint('<span class="t-dim">opening about…</span>');
-      setTimeout(() => { window.location.href = '/about'; }, 350);
+      setTimeout(() => { closeShell(); navigate('/about'); }, 350);
       break;
     }
     case 'contact': {
       shPrint('<span class="t-dim">opening contact…</span>');
-      setTimeout(() => { window.location.href = '/contact'; }, 350);
+      setTimeout(() => { closeShell(); navigate('/contact'); }, 350);
       break;
     }
     case 'rss': {
       shPrint('<span class="t-dim">opening rss…</span>');
-      setTimeout(() => { window.location.href = '/rss.xml'; }, 350);
+      // /rss.xml is not an HTML page — use a full navigation
+      setTimeout(() => { closeShell(); window.location.href = '/rss.xml'; }, 350);
       break;
     }
     case 'home':
     case 'index': {
       shPrint('<span class="t-dim">going home…</span>');
-      setTimeout(() => { window.location.href = '/'; }, 350);
+      setTimeout(() => { closeShell(); navigate('/'); }, 350);
       break;
     }
     case 'theme': {
@@ -425,6 +439,7 @@ function buildShell(): void {
       '</div>' +
     '</div>';
   document.body.appendChild(el);
+  _shellEl = el;
   shell.built = true;
 
   const body = document.getElementById('termBody')!;
@@ -444,7 +459,7 @@ function buildShell(): void {
     if (a) {
       e.preventDefault();
       shPrint('<span class="t-dim">opening ' + esc(a.getAttribute('data-name') ?? '') + '…</span>');
-      setTimeout(() => { window.location.href = a.getAttribute('data-go')!; }, 450);
+      setTimeout(() => { closeShell(); navigate(a.getAttribute('data-go')!); }, 450);
     }
   });
   input.addEventListener('keydown', onShellKey);
