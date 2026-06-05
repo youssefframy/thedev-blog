@@ -1,0 +1,69 @@
+---
+// Hero terminal — typewriter self-types on load (reduced-motion aware)
+// data-open-shell: Phase 6 wires this up to open the interactive shell
+---
+
+<div class="term nb-terminal" data-open-shell title="Click to open the shell (coming soon)">
+  <div class="nb-terminal__bar">
+    <div class="nb-terminal__dots"><i></i><i></i><i></i></div>
+    <span class="nb-terminal__title">~/thedev — zsh</span>
+    <span class="term__cta">click to run ❯</span>
+  </div>
+  <div class="nb-terminal__body" id="heroTermBody">
+    <span class="nb-prompt typed">whoami</span>
+    <span class="out">the developer. writes things down so you don't have to.</span>
+    <span class="sp"></span>
+    <span class="nb-prompt typed">ls ~/posts | tail -3</span>
+    <span class="out ok">killing-cold-starts.md</span>
+    <span class="out ok">choose-boring-architecture.md</span>
+    <span class="out ok">type-safe-env.md</span>
+    <span class="sp"></span>
+    <span class="nb-prompt typed">cat status</span>
+    <span class="out blue">● shipping<span class="cursor"></span></span>
+  </div>
+</div>
+
+<script>
+  (function typeTerminal() {
+    const body = document.getElementById('heroTermBody');
+    if (!body) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const lines = Array.from(body.children) as HTMLElement[];
+    // Snapshot original content
+    const data = lines.map((el) => ({
+      el,
+      html: el.innerHTML,
+      text: el.textContent ?? '',
+      hasEl: el.children.length > 0,
+      spacer: el.classList.contains('sp'),
+      cmd: el.classList.contains('nb-prompt'),
+    }));
+
+    // Clear all non-spacers
+    data.forEach((d) => {
+      if (!d.spacer) { if (d.hasEl) d.el.innerHTML = ''; else d.el.textContent = ''; }
+    });
+
+    let i = 0;
+    function nextLine() {
+      if (i >= data.length) return;
+      const d = data[i];
+      if (d.spacer) { i++; return nextLine(); }
+      if (d.hasEl) { d.el.innerHTML = d.html; i++; return setTimeout(nextLine, 300); }
+      const full = d.text;
+      let c = 0;
+      const speed = d.cmd ? 36 : 12;
+      (function typeChar() {
+        d.el.textContent = full.slice(0, c);
+        if (c++ <= full.length) setTimeout(typeChar, speed);
+        else { i++; setTimeout(nextLine, d.cmd ? 200 : 90); }
+      })();
+    }
+    nextLine();
+    // Safety net: ensure full content even if animation is interrupted
+    setTimeout(() => {
+      data.forEach((d) => { if (!d.spacer) d.el.innerHTML = d.html; });
+    }, 4500);
+  })();
+</script>

@@ -1,0 +1,66 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import SearchOverlay from '../components/SearchOverlay.astro';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import '../styles/tokens.css';
+import '../styles/components.css';
+import '../styles/site.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  /** data-page attribute for aria-current nav highlighting */
+  page?: string;
+}
+
+const {
+  title = SITE_TITLE,
+  description = SITE_DESCRIPTION,
+  ogImage,
+  page = '',
+} = Astro.props;
+
+const fullTitle = title === SITE_TITLE ? SITE_TITLE : `${title} — ${SITE_TITLE}`;
+---
+
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <BaseHead title={fullTitle} description={description} ogImage={ogImage} />
+
+    <!-- FOUC guard: apply persisted theme before paint -->
+    <script is:inline>
+      (function () {
+        try {
+          var t = localStorage.getItem('thedev-theme') || 'dark';
+          document.documentElement.setAttribute('data-theme', t);
+        } catch (_) {}
+      })();
+    </script>
+
+  </head>
+
+  <body data-page={page}>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <Header page={page} />
+    <main id="main-content">
+      <slot />
+    </main>
+    <Footer />
+    <SearchOverlay />
+
+    <!-- Global site scripts -->
+    <script>
+      import { initThemeToggle } from '../scripts/theme';
+      import { wireReveal } from '../scripts/reveal';
+      import { toast } from '../scripts/toast';
+      initThemeToggle();
+      wireReveal();
+      // Make toast available globally for inline scripts
+      (window as typeof window & { thedevToast: typeof toast }).thedevToast = toast;
+    </script>
+  </body>
+</html>

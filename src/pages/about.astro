@@ -1,63 +1,233 @@
 ---
-import AboutHeroImage from '../assets/blog-placeholder-about.jpg';
-import Layout from '../layouts/BlogPost.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getArticles } from '../lib/articles';
+import { CREDLY } from '../consts';
+import '../styles/page.css';
+
+const articles = await getArticles();
+
+// Topic grid data (matching reference about.html)
+const TOPICS = [
+  { key: 'AWS', glyph: '☁', cls: 't-aws', desc: 'Serverless, cost, and the occasional Graviton rabbit hole.' },
+  { key: 'Software Engineering', glyph: '{}', cls: 't-se', desc: 'Architecture decisions, type safety, and choosing boring on purpose.' },
+  { key: 'DevTools', glyph: '>_', cls: 't-devtools', desc: 'CLIs, editors, and the tooling that makes a workday quieter.' },
+  { key: 'Projects', glyph: '⚑', cls: 't-projects', desc: 'Shipping side projects without burning a weekend to ash.' },
+  { key: 'Notes', glyph: '✷', cls: 't-notes', desc: 'Short field notes — debugging, reliability, things I read.' },
+] as const;
+
+// Certifications (AWS ones pre-populated; GCP/Azure/Other empty — placeholder until Phase 7)
+const PROVIDERS = [
+  { id: 'AWS', certs: [
+    { code: 'CLF', name: 'Cloud Practitioner', tier: 'Foundational' },
+    { code: 'AIF', name: 'AI Practitioner', tier: 'Foundational' },
+    { code: 'SAA', name: 'Solutions Architect Associate', tier: 'Associate' },
+    { code: 'DVA', name: 'Developer Associate', tier: 'Associate' },
+    { code: 'SOA', name: 'SysOps Administrator Associate', tier: 'Associate' },
+    { code: 'DEA', name: 'Data Engineer Associate', tier: 'Associate' },
+    { code: 'MLA', name: 'Machine Learning Engineer Associate', tier: 'Associate' },
+    { code: 'SAP', name: 'Solutions Architect Professional', tier: 'Professional' },
+    { code: 'DOP', name: 'DevOps Engineer Professional', tier: 'Professional' },
+    { code: 'ANS', name: 'Advanced Networking Specialty', tier: 'Specialty' },
+    { code: 'MLS', name: 'Machine Learning Specialty', tier: 'Specialty' },
+    { code: 'SCS', name: 'Security Specialty', tier: 'Specialty' },
+  ]},
+  { id: 'GCP', certs: [] },
+  { id: 'Azure', certs: [] },
+  { id: 'Other', certs: [] },
+] as const;
 ---
 
-<Layout
-	title="About Me"
-	description="Lorem ipsum dolor sit amet"
-	pubDate={new Date('August 08 2021')}
-	heroImage={AboutHeroImage}
->
-	<p>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-		labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo
-		viverra. Adipiscing enim eu turpis egestas pretium. Euismod elementum nisi quis eleifend quam
-		adipiscing. In hac habitasse platea dictumst vestibulum. Sagittis purus sit amet volutpat. Netus
-		et malesuada fames ac turpis egestas. Eget magna fermentum iaculis eu non diam phasellus
-		vestibulum lorem. Varius sit amet mattis vulputate enim. Habitasse platea dictumst quisque
-		sagittis. Integer quis auctor elit sed vulputate mi. Dictumst quisque sagittis purus sit amet.
-	</p>
+<BaseLayout title="About — thedev" description="Who's behind thedev: a cloud-leaning software engineer and AWS Community Builder who writes things down." page="about">
 
-	<p>
-		Morbi tristique senectus et netus. Id semper risus in hendrerit gravida rutrum quisque non
-		tellus. Habitasse platea dictumst quisque sagittis purus sit amet. Tellus molestie nunc non
-		blandit massa. Cursus vitae congue mauris rhoncus. Accumsan tortor posuere ac ut. Fringilla urna
-		porttitor rhoncus dolor. Elit ullamcorper dignissim cras tincidunt lobortis. In cursus turpis
-		massa tincidunt dui ut ornare lectus. Integer feugiat scelerisque varius morbi enim nunc.
-		Bibendum neque egestas congue quisque egestas diam. Cras ornare arcu dui vivamus arcu felis
-		bibendum. Dignissim suspendisse in est ante in nibh mauris. Sed tempus urna et pharetra pharetra
-		massa massa ultricies mi.
-	</p>
+  <!-- ===== INTRO HERO ===== -->
+  <section class="wrap section" id="about-main" style="padding-bottom:1rem">
+    <div class="about-hero">
+      <div>
+        <span class="kicker">// whoami</span>
+        <h1 class="page-title">I'm <span class="accent">thedev</span>. I write things down.</h1>
+        <p class="page-lead">Cloud-leaning software engineer, AWS Community Builder, and a chronic note-taker. This blog is where the notes live — the stuff I wish someone had written before I learned it the hard way at 2am.</p>
+        <div class="btn-row" style="margin-top:1.6rem">
+          <a class="nb-btn" href="/contact">Get in touch</a>
+          <a class="nb-btn nb-btn--white" href="/#latest">Read the blog</a>
+        </div>
+      </div>
+      <div class="about-card">
+        <span class="about-card__av">td</span>
+        <div class="about-card__rows">
+          <div class="kv"><span>role</span><b>Software Engineer</b></div>
+          <div class="kv"><span>focus</span><b>Cloud · Backend</b></div>
+          <div class="kv"><span>stack</span><b>TS · Go · AWS</b></div>
+          <div class="kv"><span>since</span><b>2019</b></div>
+          <div class="kv"><span>coffee</span><b>required</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-	<p>
-		Mollis nunc sed id semper risus in. Convallis a cras semper auctor neque. Diam sit amet nisl
-		suscipit. Lacus viverra vitae congue eu consequat ac felis donec. Egestas integer eget aliquet
-		nibh praesent tristique magna sit amet. Eget magna fermentum iaculis eu non diam. In vitae
-		turpis massa sed elementum. Tristique et egestas quis ipsum suspendisse ultrices. Eget lorem
-		dolor sed viverra ipsum. Vel turpis nunc eget lorem dolor sed viverra. Posuere ac ut consequat
-		semper viverra nam. Laoreet suspendisse interdum consectetur libero id faucibus. Diam phasellus
-		vestibulum lorem sed risus ultricies tristique. Rhoncus dolor purus non enim praesent elementum
-		facilisis. Ultrices tincidunt arcu non sodales neque. Tempus egestas sed sed risus pretium quam
-		vulputate. Viverra suspendisse potenti nullam ac tortor vitae purus faucibus ornare. Fringilla
-		urna porttitor rhoncus dolor purus non. Amet dictum sit amet justo donec enim.
-	</p>
+  <!-- ===== AWS COMMUNITY BUILDER ===== -->
+  <section class="wrap section" style="padding-block:1.5rem">
+    <div class="cb-banner">
+      <div class="cb-banner__mark">☁</div>
+      <div>
+        <span class="kicker" style="color:#111">// recognition</span>
+        <h2>AWS Community Builder</h2>
+        <p>Part of the AWS Community Builders program — a global group of practitioners sharing knowledge about building on AWS. Expect serverless deep-dives, cost write-ups, and the occasional "don't do what I did" postmortem.</p>
+      </div>
+      <a class="nb-btn nb-btn--white" href="/#latest">Read AWS posts</a>
+    </div>
+  </section>
 
-	<p>
-		Mattis ullamcorper velit sed ullamcorper morbi tincidunt. Tortor posuere ac ut consequat semper
-		viverra. Tellus mauris a diam maecenas sed enim ut sem viverra. Venenatis urna cursus eget nunc
-		scelerisque viverra mauris in. Arcu ac tortor dignissim convallis aenean et tortor at. Curabitur
-		gravida arcu ac tortor dignissim convallis aenean et tortor. Egestas tellus rutrum tellus
-		pellentesque eu. Fusce ut placerat orci nulla pellentesque dignissim enim sit amet. Ut enim
-		blandit volutpat maecenas volutpat blandit aliquam etiam. Id donec ultrices tincidunt arcu. Id
-		cursus metus aliquam eleifend mi.
-	</p>
+  <!-- ===== CERTIFICATIONS ===== -->
+  <section class="wrap section" id="certs" style="padding-top:0">
+    <div class="cert-head">
+      <div>
+        <span class="kicker">// credentials</span>
+        <h2>Certifications</h2>
+      </div>
+    </div>
 
-	<p>
-		Tempus quam pellentesque nec nam aliquam sem. Risus at ultrices mi tempus imperdiet. Id porta
-		nibh venenatis cras sed felis eget velit. Ipsum a arcu cursus vitae. Facilisis magna etiam
-		tempor orci eu lobortis elementum. Tincidunt dui ut ornare lectus sit. Quisque non tellus orci
-		ac. Blandit libero volutpat sed cras. Nec tincidunt praesent semper feugiat nibh sed pulvinar
-		proin gravida. Egestas integer eget aliquet nibh praesent tristique magna.
-	</p>
-</Layout>
+    <!-- Tabs -->
+    <div class="cert-tabs" id="certTabs" role="tablist" aria-label="Certifications by provider">
+      {PROVIDERS.map((p, i) => (
+        <button class="cert-tab" role="tab" data-p={p.id} data-active={String(i === 0)}>
+          {p.id}<span class="n">{p.certs.length}</span>
+        </button>
+      ))}
+    </div>
+
+    <!-- Default panel (AWS shown on load, will be replaced by JS on tab click) -->
+    <div id="certPanel">
+      <div class="cert-grid">
+        {PROVIDERS[0].certs.map((c) => (
+          <a class="cert-item" data-p="AWS" href={CREDLY.profile} target="_blank" rel="noopener" title={`Verify ${c.name} on Credly`}>
+            <span class="cert-chip">{c.code}</span>
+            <span class="cert-item__body">
+              <span class="cert-item__name">{c.name}</span>
+              <span class="cert-item__meta">{c.tier} <span class="cert-item__verify">· Verify <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px"><path d="M7 17 17 7M7 7h10v10"/></svg></span></span>
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <div class="cert-foot">
+      <p>$ verified on Credly</p>
+      <a class="nb-btn nb-btn--sm" href={CREDLY.profile} target="_blank" rel="noopener">View on Credly</a>
+    </div>
+  </section>
+
+  <!-- ===== WHAT I WRITE ABOUT ===== -->
+  <section class="wrap section">
+    <div class="posts-head"><h2>What I write about</h2><span class="kicker">// topics</span></div>
+    <div class="topic-grid">
+      {TOPICS.map((t) => {
+        const n = articles.filter((a) => a.cat === t.key).length;
+        return (
+          <a class={`topic-card ${t.cls}`} href="/#latest">
+            <span class="topic-card__glyph">{t.glyph}</span>
+            <h3>{t.key}</h3>
+            <p>{t.desc}</p>
+            <span class="topic-card__count">{n} post{n === 1 ? '' : 's'} →</span>
+          </a>
+        );
+      })}
+    </div>
+  </section>
+
+  <!-- ===== NOW / TIMELINE ===== -->
+  <section class="wrap section" style="padding-top:0">
+    <div class="two-col">
+      <div>
+        <span class="kicker">// now</span>
+        <h2 class="col-title">What I'm doing now</h2>
+        <ul class="now-list">
+          <li><b>Building</b> internal developer tooling on a small platform team.</li>
+          <li><b>Writing</b> a series on keeping serverless bills boring.</li>
+          <li><b>Learning</b> Rust properly, for real this time.</li>
+          <li><b>Reading</b> every public postmortem I can find.</li>
+        </ul>
+      </div>
+      <div>
+        <span class="kicker">// timeline</span>
+        <h2 class="col-title">The short version</h2>
+        <ol class="timeline">
+          <li><span class="t-year">2026</span><span class="t-txt">AWS Community Builder. Started writing here weekly.</span></li>
+          <li><span class="t-year">2023</span><span class="t-txt">Went all-in on platform &amp; developer experience work.</span></li>
+          <li><span class="t-year">2021</span><span class="t-txt">First production serverless system. First serverless bill shock.</span></li>
+          <li><span class="t-year">2019</span><span class="t-txt">Started keeping public notes. Never stopped.</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TERMINAL CTA ===== -->
+  <section class="wrap section" style="padding-top:0">
+    <div class="term-cta nb-terminal">
+      <div class="nb-terminal__bar">
+        <div class="nb-terminal__dots"><i></i><i></i><i></i></div>
+        <span class="nb-terminal__title">~/thedev — contact</span>
+      </div>
+      <div class="nb-terminal__body">
+        <span class="nb-prompt">cat contact.txt</span>
+        <span class="out">Want to talk shop, fix a typo, or argue about architecture?</span>
+        <span class="out">→ <a href="/contact" style="color:var(--pop-green)">open the contact page</a> or grab the <a href="/rss" style="color:var(--pop-blue)">RSS feed</a>.<span class="cursor"></span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Data island for client-side tab switching -->
+  <script type="application/json" id="providersData" is:inline set:html={JSON.stringify(PROVIDERS)} />
+
+  <!-- Client script: certification tab switching -->
+  <script>
+    (function () {
+      var dataEl = document.getElementById('providersData');
+      if (!dataEl) return;
+      var PROVIDERS: Array<{ id: string; certs: Array<{ code: string; name: string; tier: string }> }> = JSON.parse(dataEl.textContent || '[]');
+
+      var credlyProfile = (document.querySelector('.cert-foot a') as HTMLAnchorElement)?.href || 'https://www.credly.com/';
+      var verifyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px"><path d="M7 17 17 7M7 7h10v10"/></svg>';
+
+      var tabsEl = document.getElementById('certTabs');
+      var panelEl = document.getElementById('certPanel');
+
+      if (!tabsEl || !panelEl) return;
+
+      function renderPanel(id: string) {
+        var p = PROVIDERS.filter(function (x) { return x.id === id; })[0];
+        if (!p) return;
+        if (!p.certs.length) {
+          panelEl!.innerHTML =
+            '<div class="cert-empty">' +
+            '<span class="cert-empty__mark">$ ls ' + id.toLowerCase() + '/</span>' +
+            '<p>Nothing here yet. Studying for these next.</p>' +
+            '</div>';
+          return;
+        }
+        panelEl!.innerHTML =
+          '<div class="cert-grid">' +
+          p.certs.map(function (c) {
+            return (
+              '<a class="cert-item" data-p="' + id + '" href="' + credlyProfile + '" target="_blank" rel="noopener" title="Verify ' + c.name + ' on Credly">' +
+              '<span class="cert-chip">' + c.code + '</span>' +
+              '<span class="cert-item__body">' +
+              '<span class="cert-item__name">' + c.name + '</span>' +
+              '<span class="cert-item__meta">' + c.tier + ' <span class="cert-item__verify">· Verify ' + verifyIcon + '</span></span>' +
+              '</span></a>'
+            );
+          }).join('') +
+          '</div>';
+      }
+
+      tabsEl.addEventListener('click', function (e) {
+        var btn = (e.target as Element).closest('.cert-tab') as HTMLElement | null;
+        if (!btn) return;
+        tabsEl!.querySelectorAll('.cert-tab').forEach(function (b) {
+          b.setAttribute('data-active', String(b === btn));
+        });
+        renderPanel(btn.dataset.p || '');
+      });
+    })();
+  </script>
+
+</BaseLayout>

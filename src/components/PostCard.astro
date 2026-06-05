@@ -1,0 +1,35 @@
+---
+import type { Article } from '../lib/articles';
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'a'> {
+  article: Article;
+  index: number;
+}
+const { article: a, index: i, style: extraStyle, ...rest } = Astro.props;
+const delay = Math.min(Math.max(i, 0), 8) * 55;
+---
+
+<a
+  class="card reveal"
+  href={a.url}
+  data-cat={a.cat}
+  style={[`transition-delay:${delay}ms`, extraStyle].filter(Boolean).join(';')}
+  {...rest}
+>
+  <div class={`card__thumb ${a.catClass}`}>
+    <span class="nb-badge nb-badge--square cat-tag">{a.cat}</span>
+    <span class="glyph">{a.glyph}</span>
+  </div>
+  <div class="card__body">
+    <h3 class="card__title">{a.title}</h3>
+    <p class="card__excerpt">{a.excerpt}</p>
+    <div class="card__meta">
+      {a.date}
+      <span class="dot"></span>
+      {a.readMins} min
+      <span class="dot"></span>
+      {a.tags.slice(0, 2).map((t) => `#${t}`).join(' ')}
+    </div>
+  </div>
+</a>

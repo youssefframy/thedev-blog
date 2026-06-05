@@ -1,0 +1,66 @@
+---
+import HeroTerminal from './HeroTerminal.astro';
+
+interface Props {
+  articleCount: number;
+}
+const { articleCount } = Astro.props;
+---
+
+<section class="wrap">
+  <div class="hero">
+    <!-- Left: text -->
+    <div class="hero__text">
+      <span class="kicker">thedev — technical blog</span>
+      <h1 class="hero__title">
+        Not your traditional developer.
+        <span class="box">the</span>
+        <span class="accent">developer.</span>
+      </h1>
+      <p class="hero__sub">
+        Field notes on AWS, software engineering, and the unglamorous tooling that
+        makes shipping fun. Long enough to be useful, short enough to finish with one coffee.
+      </p>
+      <div class="btn-row" style="margin-top:1.6rem">
+        <a class="nb-btn" href="#latest">Read latest</a>
+        <a class="nb-btn nb-btn--white" href="/about">About me</a>
+      </div>
+      <div class="hero__stats">
+        <div>
+          <span class="stat-n" data-count={articleCount} id="statArticles">{articleCount}</span>
+          <span class="stat-l">// articles</span>
+        </div>
+        <div>
+          <span class="stat-n">5</span>
+          <span class="stat-l">// topics</span>
+        </div>
+        <div>
+          <span class="stat-n">2019</span>
+          <span class="stat-l">// writing since</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: terminal -->
+    <div class="hero__visual">
+      <HeroTerminal />
+    </div>
+  </div>
+</section>
+
+<script>
+  // Count-up animation for article count
+  const statEl = document.getElementById('statArticles') as HTMLElement | null;
+  if (statEl) {
+    const target = parseInt(statEl.getAttribute('data-count') ?? '0', 10);
+    if (target > 0 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      let cur = 0;
+      const step = Math.ceil(target / 30);
+      const iv = setInterval(() => {
+        cur += step;
+        if (cur >= target) { cur = target; clearInterval(iv); }
+        statEl.textContent = String(cur);
+      }, 28);
+    }
+  }
+</script>

@@ -1,0 +1,47 @@
+---
+// Newsletter block — form is simulated (no backend yet).
+// Phase 7: wire to a real provider (Buttondown / ConvertKit / etc.)
+---
+
+<section class="wrap section" style="padding-top:0">
+  <div class="newsletter reveal">
+    <div>
+      <span class="kicker">// the dispatch</span>
+      <h2>One email. When there's something worth reading.</h2>
+      <p>New articles + the occasional link dump. No spam, no "growth hacks". Unsubscribe in one click.</p>
+    </div>
+    <form class="news-form" id="newsletterForm" novalidate>
+      <input
+        class="nb-input"
+        type="email"
+        placeholder="you@domain.dev"
+        aria-label="Email address"
+        required
+      />
+      <button class="nb-btn" type="submit">Subscribe</button>
+      <p class="news-note">$ joined by 3,100+ builders</p>
+    </form>
+  </div>
+</section>
+
+<script>
+  const form = document.getElementById('newsletterForm') as HTMLFormElement | null;
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = form.querySelector<HTMLInputElement>('input[type=email]')!;
+      const emailRe = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+      if (!input.value || !emailRe.test(input.value)) {
+        input.classList.add('nb-input--error');
+        input.focus();
+        const toast = (window as typeof window & { thedevToast?: (msg: string) => void }).thedevToast;
+        toast?.('Enter a valid email');
+        return;
+      }
+      input.classList.remove('nb-input--error');
+      input.value = '';
+      const toast = (window as typeof window & { thedevToast?: (msg: string) => void }).thedevToast;
+      toast?.("You're in. Check your inbox.");
+    });
+  }
+</script>

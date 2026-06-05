@@ -1,0 +1,173 @@
+/* =====================================================================
+   thedev — Design Tokens (Terminal Brutalism)
+   Ported from Claude Design handoff: colors_and_type.css
+   Fonts provided by Astro Fonts API (Space Grotesk / Public Sans /
+   JetBrains Mono) — do NOT declare --font-* vars here.
+   Purple (#A78BFA) is baked as --main for both themes.
+   ===================================================================== */
+
+:root {
+  /* ============ BRAND POP COLORS ============ */
+  --pop-yellow:  #FFDB58;
+  --pop-red:     #FF6B6B;
+  --pop-blue:    #4D9DE0;
+  --pop-teal:    #4ECDC4;
+  --pop-purple:  #A388EE;
+  --pop-lime:    #A3E635;
+  --pop-green:   #16A34A;
+
+  /* ============ INK & PAPER ============ */
+  --ink:            #111111;
+  --border-color:   #000000;
+  --paper:          #FEF6E4;
+  --surface:        #FFFFFF;
+  --surface-muted:  #F4ECDA;
+  --overlay:        rgba(17, 17, 17, 0.75);
+
+  /* ============ SEMANTIC ROLES — purple as primary accent ============ */
+  --main:           #A78BFA;
+  --main-foreground:#15102b;
+  --background:     var(--paper);
+  --secondary-bg:   var(--surface);
+  --foreground:     var(--ink);
+  --muted-foreground:#5A5247;
+  --ring:           #000000;
+
+  --info:           var(--pop-blue);
+  --success:        var(--pop-teal);
+  --warning:        var(--pop-yellow);
+  --danger:         var(--pop-red);
+
+  /* ============ SYNTAX TOKENS ============ */
+  --tok-kw:   #7C3AED;
+  --tok-fn:   #2563EB;
+  --tok-str:  #16A34A;
+  --tok-num:  #B45309;
+  --tok-com:  #8A8275;
+  --tok-var:  #DC2626;
+  --tok-punc: #5A5247;
+
+  /* ============ BORDERS ============ */
+  --border-width:    3px;
+  --border-width-sm: 2px;
+  --border-width-lg: 4px;
+
+  /* ============ RADII ============ */
+  --radius-sm:   3px;
+  --radius-base: 6px;
+  --radius-lg:   10px;
+  --radius-pill: 999px;
+
+  /* ============ HARD OFFSET SHADOWS ============ */
+  --shadow-x: 4px;
+  --shadow-y: 4px;
+  --shadow-sm:  2px 2px 0 0 var(--border-color);
+  --shadow:     4px 4px 0 0 var(--border-color);
+  --shadow-md:  5px 5px 0 0 var(--border-color);
+  --shadow-lg:  7px 7px 0 0 var(--border-color);
+  --shadow-xl:  10px 10px 0 0 var(--border-color);
+  --shadow-reverse: -4px -4px 0 0 var(--border-color);
+
+  /* ============ TYPOGRAPHY ============ */
+  /* --font-display, --font-body, --font-mono set by Astro Fonts API */
+  --weight-regular: 400;
+  --weight-base:    500;
+  --weight-medium:  600;
+  --weight-bold:    700;
+  --weight-heading: 800;
+
+  /* Type scale */
+  --text-hero:  clamp(2.75rem, 6vw, 5rem);
+  --text-h1:    clamp(2rem, 4vw, 3rem);
+  --text-h2:    clamp(1.5rem, 3vw, 2.25rem);
+  --text-h3:    1.5rem;
+  --text-lg:    1.25rem;
+  --text-body:  1rem;
+  --text-sm:    0.875rem;
+  --text-xs:    0.75rem;
+
+  --leading-tight: 1.05;
+  --leading-snug:  1.25;
+  --leading-body:  1.6;
+
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide:  0.04em;
+
+  /* ============ SPACING ============ */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+
+  /* ============ MOTION ============ */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+
+  /* ============ Z-INDEX ============ */
+  --z-base: 0;
+  --z-nav: 100;
+  --z-overlay: 200;
+  --z-modal: 300;
+  --z-toast: 500;
+}
+
+/* ===================== DARK MODE — Terminal Brutalism ===================== */
+.dark, [data-theme="dark"] {
+  --pop-green:   #4ADE80;
+  --pop-yellow:  #FBBF24;
+  --pop-red:     #FB7185;
+  --pop-blue:    #38BDF8;
+  --pop-teal:    #2DD4BF;
+  --pop-purple:  #A78BFA;
+  --pop-lime:    #A3E635;
+  --ink:            #F0F0EC;
+  --border-color:   #F0F0EC;
+  --paper:          #0E0E11;
+  --surface:        #1A1A20;
+  --surface-muted:  #25252E;
+  --muted-foreground:#8B8B96;
+  --overlay:        rgba(5, 5, 7, 0.8);
+  /* purple accent stays the same in dark */
+  --main:           #A78BFA;
+  --main-foreground:#15102b;
+  --ring:           #F0F0EC;
+  --success:        var(--pop-green);
+  --tok-kw:   #A78BFA;
+  --tok-fn:   #38BDF8;
+  --tok-str:  #4ADE80;
+  --tok-num:  #FBBF24;
+  --tok-com:  #8B8B96;
+  --tok-var:  #FB7185;
+  --tok-punc: #8B8B96;
+}
+
+/* ===================== SEMANTIC BASE ===================== */
+.ds-scope {
+  font-family: var(--font-body);
+  font-weight: var(--weight-base);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  color: var(--foreground);
+  background: var(--background);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Blinking terminal cursor */
+.cursor, .nb-cursor {
+  display: inline-block;
+  width: 0.6em;
+  height: 1.05em;
+  vertical-align: -0.15em;
+  background: var(--pop-green);
+  margin-left: 0.12em;
+  animation: nb-blink 1s steps(1) infinite;
+}
+@keyframes nb-blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .cursor, .nb-cursor { animation: none; } }

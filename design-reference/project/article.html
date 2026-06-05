@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Killing cold starts — thedev</title>
+  <meta name="description" content="Provisioned concurrency is the lazy answer. Here's what actually cut Lambda cold-start latency by 70% across 40 functions.">
+  <link rel="alternate" type="application/rss+xml" title="thedev RSS" href="rss.html">
+  <script>(function(){try{var t=localStorage.getItem("thedev-theme")||"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+  <link rel="stylesheet" href="styles/colors_and_type.css">
+  <link rel="stylesheet" href="styles/components.css">
+  <link rel="stylesheet" href="styles/site.css">
+  <link rel="stylesheet" href="styles/article.css">
+</head>
+<body data-page="articles">
+  <div class="progress" id="progress"></div>
+  <a class="skip-link" href="#article-body">Skip to article</a>
+
+  <article>
+    <!-- ====== HEADER ====== -->
+    <header class="wrap wrap--narrow art-head">
+      <div class="art-breadcrumb"><a href="index.html">~/thedev</a> / <a href="index.html#aws">aws</a> / killing-cold-starts.md</div>
+      <span class="nb-badge nb-badge--square" style="background:var(--pop-yellow);color:#111">AWS</span>
+      <h1 class="art-title">Killing cold starts: how I cut Lambda latency by 70%</h1>
+      <div class="art-meta">
+        <span class="av">td</span>
+        <span class="who">thedev</span>
+        <span class="dot"></span>
+        <span>May 28, 2026</span>
+        <span class="dot"></span>
+        <span>8 min read</span>
+        <span class="dot"></span>
+        <span>1,240 words</span>
+      </div>
+      <div class="art-tags">
+        <span class="nb-badge nb-badge--square">#aws</span>
+        <span class="nb-badge nb-badge--square">#lambda</span>
+        <span class="nb-badge nb-badge--square">#performance</span>
+      </div>
+    </header>
+
+    <!-- ====== BODY + TOC ====== -->
+    <div class="wrap art-layout" id="article-body">
+      <div class="prose" id="prose">
+        <p class="lead" style="color:var(--foreground);font-weight:600">Provisioned concurrency is the answer everyone reaches for first. It's also a way to spend a lot of money papering over a problem you haven't measured yet. Here's the order I'd actually attack cold starts in — cheapest, highest-leverage fixes first.</p>
+
+        <p>Late last year our p99 on a customer-facing checkout API drifted past <strong>2.8 seconds</strong>. Not the median — the median was fine — but enough requests were hitting cold Lambdas that support tickets started rolling in. We had ~40 functions behind an API Gateway, most of them Node, a couple in Python. This is the playbook we used to claw most of that latency back without throwing money at provisioned concurrency.</p>
+
+        <blockquote><p>Rule of thumb: <strong>measure first, then optimize the thing the data points at.</strong> Cold starts feel like one problem but they're usually three or four stacked on top of each other.</p></blockquote>
+
+        <h2 id="measure">Measure before you touch anything</h2>
+        <p>A "cold start" is really two numbers: the time AWS spends initializing your execution environment, and the time <em>your</em> init code spends before the handler is ready. CloudWatch gives you both if you know where to look. The <code>Init Duration</code> field in the <span class="nb-kbd">REPORT</span> log line is the one that matters.</p>
+        <p>Pull a week of init durations and bucket them. We were surprised: the AWS-managed portion was stable at ~180ms, but our own init was wildly variable — some functions spent over a second loading SDK clients and parsing config they didn't need yet.</p>
+
+        <div class="codeblock">
+          <div class="codeblock__bar">
+            <span class="codeblock__dots"><i></i><i></i><i></i></span>
+            <span class="codeblock__name">cloudwatch-insights.sql</span>
+            <button class="copy-btn" type="button"></button>
+          </div>
+<pre><code><span class="tok-com">-- Worst cold starts in the last 7 days</span>
+<span class="tok-kw">filter</span> <span class="tok-var">@type</span> = <span class="tok-str">"REPORT"</span>
+<span class="tok-kw">| fields</span> <span class="tok-var">@initDuration</span>, <span class="tok-var">@duration</span>, <span class="tok-var">@requestId</span>
+<span class="tok-kw">| filter</span> <span class="tok-fn">ispresent</span>(<span class="tok-var">@initDuration</span>)
+<span class="tok-kw">| sort</span> <span class="tok-var">@initDuration</span> <span class="tok-kw">desc</span>
+<span class="tok-kw">| limit</span> <span class="tok-num">25</span></code></pre>
+        </div>
+
+        <div class="callout callout--tip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--pop-green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6M12 22v-2"/><circle cx="12" cy="14" r="4"/></svg>
+          <div class="callout__body"><strong>Tip</strong>If you only do one thing from this post, do this query. We found two functions that accounted for 60% of the bad tail purely from a misconfigured logging library loading at import time.</div>
+        </div>
+
+        <h2 id="shrink">Shrink the package, shrink the start</h2>
+        <p>Init time scales roughly with how much code the runtime has to load and parse. The single biggest win for our Node functions was getting honest about the bundle.</p>
+        <h3 id="tree-shake">Bundle and tree-shake</h3>
+        <p>Shipping <span class="nb-kbd">node_modules</span> raw is the default and it's almost always wrong. We moved to <code>esbuild</code> and cut one function's deployment artifact from 14&nbsp;MB to 380&nbsp;KB. Init dropped from 900ms to under 200ms.</p>
+
+        <div class="codeblock">
+          <div class="codeblock__bar">
+            <span class="codeblock__dots"><i></i><i></i><i></i></span>
+            <span class="codeblock__name">build.mjs</span>
+            <button class="copy-btn" type="button"></button>
+          </div>
+<pre><code><span class="tok-kw">import</span> { build } <span class="tok-kw">from</span> <span class="tok-str">"esbuild"</span><span class="tok-punc">;</span>
+
+<span class="tok-kw">await</span> <span class="tok-fn">build</span>({
+  entryPoints<span class="tok-punc">:</span> [<span class="tok-str">"src/handler.ts"</span>]<span class="tok-punc">,</span>
+  bundle<span class="tok-punc">:</span> <span class="tok-kw">true</span><span class="tok-punc">,</span>
+  minify<span class="tok-punc">:</span> <span class="tok-kw">true</span><span class="tok-punc">,</span>
+  platform<span class="tok-punc">:</span> <span class="tok-str">"node"</span><span class="tok-punc">,</span>
+  target<span class="tok-punc">:</span> <span class="tok-str">"node20"</span><span class="tok-punc">,</span>
+  <span class="tok-com">// the AWS SDK is on the runtime already — don't ship it</span>
+  external<span class="tok-punc">:</span> [<span class="tok-str">"@aws-sdk/*"</span>]<span class="tok-punc">,</span>
+  outfile<span class="tok-punc">:</span> <span class="tok-str">"dist/handler.js"</span><span class="tok-punc">,</span>
+})<span class="tok-punc">;</span></code></pre>
+        </div>
+
+        <h3 id="lazy">Lazy-load the expensive stuff</h3>
+        <p>Anything you <code>import</code> at the top of the file runs during init, whether the handler needs it or not. Move heavy clients behind a function so they initialize on first use and get reused across warm invocations.</p>
+
+        <div class="codeblock">
+          <div class="codeblock__bar">
+            <span class="codeblock__dots"><i></i><i></i><i></i></span>
+            <span class="codeblock__name">handler.ts</span>
+            <button class="copy-btn" type="button"></button>
+          </div>
+<pre><code><span class="tok-kw">let</span> _db<span class="tok-punc">:</span> Pool <span class="tok-punc">|</span> <span class="tok-kw">undefined</span><span class="tok-punc">;</span>
+
+<span class="tok-com">// created once per warm container, not on every cold start</span>
+<span class="tok-kw">function</span> <span class="tok-fn">db</span>() {
+  <span class="tok-kw">if</span> (!_db) _db = <span class="tok-kw">new</span> <span class="tok-fn">Pool</span>({ max<span class="tok-punc">:</span> <span class="tok-num">1</span> })<span class="tok-punc">;</span>
+  <span class="tok-kw">return</span> _db<span class="tok-punc">;</span>
+}
+
+<span class="tok-kw">export</span> <span class="tok-kw">const</span> handler = <span class="tok-kw">async</span> (event) => {
+  <span class="tok-kw">const</span> rows = <span class="tok-kw">await</span> <span class="tok-fn">db</span>().<span class="tok-fn">query</span>(<span class="tok-str">"select 1"</span>)<span class="tok-punc">;</span>
+  <span class="tok-kw">return</span> { statusCode<span class="tok-punc">:</span> <span class="tok-num">200</span>, body<span class="tok-punc">:</span> <span class="tok-fn">JSON</span>.<span class="tok-fn">stringify</span>(rows) }<span class="tok-punc">;</span>
+}<span class="tok-punc">;</span></code></pre>
+        </div>
+
+        <h2 id="runtime">Pick the runtime on purpose</h2>
+        <p>Runtimes are not equal at cold start. In our testing, on identical workloads, the rough ranking from fastest to slowest init was: compiled binaries (Rust / Go via the custom runtime) → Node → Python → JVM. If a function is on a hot path and does little more than shuffle JSON, a tiny Go binary starts in single-digit milliseconds.</p>
+        <p>We didn't rewrite everything — that would be its own kind of expensive mistake. We rewrote the two worst offenders and left the rest. <a href="article.html">Choosing boring architecture</a> applies here too: only move what the data tells you to.</p>
+
+        <div class="callout callout--warn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+          <div class="callout__body"><strong>Watch out</strong>ARM (Graviton) is cheaper and often faster, but double-check any native dependencies actually have <code>arm64</code> builds before you flip the architecture flag.</div>
+        </div>
+
+        <h2 id="provisioned">When provisioned concurrency is actually right</h2>
+        <p>After all of the above, our p99 was down to ~850ms and the tickets stopped. For the <em>one</em> endpoint with a hard sub-300ms SLA, we finally turned on provisioned concurrency — but only for that function, scaled on a schedule around peak traffic. Reaching for it last meant we paid for a fraction of what we'd have provisioned if we'd started there.</p>
+
+        <ul>
+          <li><strong>Measure</strong> the init breakdown before changing anything.</li>
+          <li><strong>Bundle and tree-shake</strong> — usually the biggest single win.</li>
+          <li><strong>Lazy-load</strong> heavy clients out of the init path.</li>
+          <li><strong>Right-size the runtime</strong> for hot paths only.</li>
+          <li><strong>Provision last,</strong> narrowly, and on a schedule.</li>
+        </ul>
+
+        <p>The whole effort took about a week of focused work and the AWS bill went <em>down</em>, because smaller packages and shorter durations cost less. The lazy answer would have cost more and fixed less.</p>
+      </div>
+
+      <!-- TOC -->
+      <aside class="toc" id="toc" aria-label="Table of contents">
+        <div class="toc__label">On this page</div>
+        <ul class="toc__list" id="tocList"></ul>
+      </aside>
+    </div>
+
+    <!-- ====== FOOT ====== -->
+    <div class="wrap wrap--narrow art-foot">
+      <div class="author-card">
+        <span class="author-card__av">td</span>
+        <div>
+          <h4>thedev</h4>
+          <p>Cloud-leaning software engineer and AWS Community Builder. I write things down so the next on-call shift goes smoother.</p>
+          <div class="btn-row">
+            <a class="nb-btn nb-btn--sm" href="about.html">More about me</a>
+            <a class="nb-btn nb-btn--sm nb-btn--white" href="contact.html">Get in touch</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- newsletter -->
+  <section class="wrap wrap--narrow section" style="padding-block:2.5rem">
+    <div class="newsletter">
+      <div>
+        <span class="kicker">// the dispatch</span>
+        <h2>Liked this? Get the next one.</h2>
+        <p>New articles + the occasional link dump. No spam, unsubscribe in one click.</p>
+      </div>
+      <form class="news-form" novalidate>
+        <input class="nb-input" type="email" placeholder="you@domain.dev" aria-label="Email address" required>
+        <button class="nb-btn" type="submit">Subscribe</button>
+        <p class="news-note">$ joined by 3,100+ builders</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- suggested reads -->
+  <section class="wrap section" style="padding-top:0">
+    <div class="posts-head"><h2>Keep reading</h2><a class="kicker" href="index.html#latest" style="text-decoration:none">all posts →</a></div>
+    <div class="suggest" id="suggest"></div>
+  </section>
+
+  <script src="js/site.js"></script>
+  <script>
+    window.thedevPageInit = function (ctx) {
+      var ARTICLES = ctx.ARTICLES;
+
+      // ---- build TOC from headings ----
+      var prose = document.getElementById("prose");
+      var heads = prose.querySelectorAll("h2, h3");
+      var tocList = document.getElementById("tocList");
+      var items = [];
+      heads.forEach(function (h) {
+        if (!h.id) return;
+        var li = document.createElement("li");
+        var a = document.createElement("a");
+        a.href = "#" + h.id;
+        a.textContent = h.textContent;
+        if (h.tagName === "H3") a.className = "lvl3";
+        a.addEventListener("click", function (e) {
+          e.preventDefault();
+          var top = h.getBoundingClientRect().top + window.pageYOffset - 88;
+          window.scrollTo({ top: top, behavior: "smooth" });
+          history.replaceState(null, "", "#" + h.id);
+        });
+        li.appendChild(a);
+        tocList.appendChild(li);
+        items.push({ el: h, link: a });
+      });
+
+      // ---- scrollspy + reading progress (manual) ----
+      var progress = document.getElementById("progress");
+      function onScroll() {
+        var st = window.pageYOffset || document.documentElement.scrollTop;
+        var docH = document.documentElement.scrollHeight - window.innerHeight;
+        progress.style.width = (docH > 0 ? Math.min(100, (st / docH) * 100) : 0) + "%";
+        var current = items.length ? items[0] : null;
+        for (var i = 0; i < items.length; i++) {
+          if (items[i].el.getBoundingClientRect().top - 100 <= 0) current = items[i];
+        }
+        items.forEach(function (it) { it.link.classList.toggle("active", it === current); });
+      }
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("resize", onScroll);
+      onScroll();
+
+      // ---- suggested reads (3, excluding current) ----
+      var suggest = document.getElementById("suggest");
+      var picks = ARTICLES.filter(function (a) { return a.id !== "ec2-cold-start"; }).slice(0, 3);
+      suggest.innerHTML = picks.map(function (a) {
+        return '<a class="card" href="' + a.url + '">' +
+          '<div class="card__thumb ' + a.catClass + '"><span class="nb-badge nb-badge--square cat-tag">' + a.cat + '</span><span class="glyph">' + a.glyph + '</span></div>' +
+          '<div class="card__body"><h3 class="card__title">' + a.title + '</h3>' +
+          '<p class="card__excerpt">' + a.excerpt + '</p>' +
+          '<div class="card__meta">' + a.date + '<span class="dot"></span>' + a.read + ' min</div></div></a>';
+      }).join("");
+    };
+  </script>
+</body>
+</html>

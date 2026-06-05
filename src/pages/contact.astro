@@ -1,0 +1,163 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SOCIALS } from '../consts';
+import '../styles/page.css';
+---
+
+<BaseLayout title="Contact" description="Get in touch with thedev — talk shop, fix a typo, or argue about architecture." page="contact">
+  <section class="wrap section" id="contact-main">
+    <span class="kicker">// say hello</span>
+    <h1 class="page-title">Let's <span class="accent">talk.</span></h1>
+    <p class="page-lead">Got a question, a correction, a war story, or want to argue about whether monorepos are good? Drop a line. I read everything — replies skew toward the technically interesting.</p>
+
+    <div class="contact-layout" style="margin-top:2.4rem">
+      <!-- FORM (left) -->
+      <div class="contact-form">
+        <form id="contactForm" novalidate>
+          <div class="form-grid">
+            <div class="nb-field">
+              <label for="cf-name">Name</label>
+              <input class="nb-input" id="cf-name" name="name" type="text" placeholder="Ada Lovelace" required>
+              <span class="nb-error" data-err="name" hidden>Tell me your name.</span>
+            </div>
+            <div class="nb-field">
+              <label for="cf-email">Email</label>
+              <input class="nb-input" id="cf-email" name="email" type="email" placeholder="you@domain.dev" required>
+              <span class="nb-error" data-err="email" hidden>That email looks off.</span>
+            </div>
+            <div class="nb-field full">
+              <label for="cf-subject">Subject</label>
+              <select class="nb-select" id="cf-subject" name="subject">
+                <option>General question</option>
+                <option>Correction / typo on a post</option>
+                <option>Speaking / podcast</option>
+                <option>Consulting / work</option>
+                <option>Just saying hi</option>
+              </select>
+            </div>
+            <div class="nb-field full">
+              <label for="cf-message">Message</label>
+              <textarea class="nb-textarea" id="cf-message" name="message" placeholder="What's on your mind?" required></textarea>
+              <span class="nb-error" data-err="message" hidden>Don't leave this empty.</span>
+            </div>
+          </div>
+          <div class="form-foot">
+            <button class="nb-btn" type="submit">Send message</button>
+            <span class="form-note">$ typically replies within 48h</span>
+          </div>
+        </form>
+        <!-- success state, hidden initially -->
+        <div class="form-success" id="formSuccess">
+          <div class="form-success__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="width:34px;height:34px;color:#08130c"><path d="M20 6 9 17l-5-5"/></svg>
+          </div>
+          <h3>Message sent. Nice.</h3>
+          <p>Thanks for reaching out — I'll get back to you soon. In the meantime, there's plenty to read.</p>
+          <div class="btn-row" style="justify-content:center;margin-top:1.2rem">
+            <a class="nb-btn nb-btn--sm" href="/#latest">Browse articles</a>
+            <button class="nb-btn nb-btn--sm nb-btn--white" type="button" id="sendAnother">Send another</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDE (right) -->
+      <div class="contact-side">
+        <!-- Email — click copies to clipboard -->
+        <a class="contact-method" href="#" id="emailMethod">
+          <span class="contact-method__icon" style="background:var(--pop-blue);color:#fff">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
+          </span>
+          <span><b>hello@thedev.blog</b><span>the fastest way to reach me</span></span>
+        </a>
+        <!-- GitHub -->
+        <a class="contact-method" href={SOCIALS.github} target="_blank" rel="noopener">
+          <span class="contact-method__icon" style="background:var(--surface-muted)">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.6 2 12.3c0 4.5 2.9 8.3 6.8 9.7.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.4-3.4-1.4-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.3 4.7-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5A10.3 10.3 0 0 0 22 12.3C22 6.6 17.5 2 12 2Z"/></svg>
+          </span>
+          <span><b>@thedev</b><span>github · code &amp; issues</span></span>
+        </a>
+        <!-- Twitter/X -->
+        <a class="contact-method" href={SOCIALS.twitter} target="_blank" rel="noopener">
+          <span class="contact-method__icon" style="background:var(--surface-muted)">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.3 8.3L23 22h-6.6l-5.2-6.7L5.3 22H2.2l7.8-8.9L1.7 2h6.8l4.7 6.2L18.9 2Zm-1.2 18h1.8L7.4 3.9H5.5L17.7 20Z"/></svg>
+          </span>
+          <span><b>@thedev</b><span>x / twitter · quick takes</span></span>
+        </a>
+        <!-- LinkedIn -->
+        <a class="contact-method" href={SOCIALS.linkedin} target="_blank" rel="noopener">
+          <span class="contact-method__icon" style="background:var(--pop-blue);color:#fff">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5A2.5 2.5 0 1 0 5 8.5a2.5 2.5 0 0 0 0-5ZM3 9h4v12H3V9Zm6 0h3.8v1.7h.1c.5-1 1.8-2 3.7-2 4 0 4.7 2.6 4.7 5.9V21h-4v-5.5c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9V21H9V9Z"/></svg>
+          </span>
+          <span><b>thedev</b><span>linkedin · the professional one</span></span>
+        </a>
+        <!-- RSS -->
+        <a class="contact-method" href="/rss">
+          <span class="contact-method__icon" style="background:var(--pop-yellow);color:#111">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1.5" fill="currentColor"/></svg>
+          </span>
+          <span><b>RSS feed</b><span>subscribe without an algorithm</span></span>
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  declare global {
+    interface Window {
+      thedevToast?: (msg: string) => void;
+    }
+  }
+
+  const form = document.getElementById('contactForm') as HTMLFormElement | null;
+  const success = document.getElementById('formSuccess');
+
+  if (form && success) {
+    function setErr(name: string, show: boolean) {
+      const msg = form!.querySelector<HTMLElement>('[data-err="' + name + '"]');
+      const field = form!.querySelector<HTMLElement>('[name="' + name + '"]');
+      if (msg) msg.hidden = !show;
+      if (field) field.classList.toggle('nb-input--error', show);
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nameVal = (form.elements.namedItem('name') as HTMLInputElement).value.trim();
+      const emailVal = (form.elements.namedItem('email') as HTMLInputElement).value.trim();
+      const messageVal = (form.elements.namedItem('message') as HTMLTextAreaElement).value.trim();
+      let ok = true;
+
+      if (!nameVal) { setErr('name', true); ok = false; } else { setErr('name', false); }
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(emailVal)) { setErr('email', true); ok = false; } else { setErr('email', false); }
+      if (!messageVal) { setErr('message', true); ok = false; } else { setErr('message', false); }
+
+      if (!ok) {
+        window.thedevToast && window.thedevToast('Fix the highlighted fields');
+        return;
+      }
+
+      form.style.display = 'none';
+      success!.classList.add('show');
+      window.thedevToast && window.thedevToast('Message sent');
+    });
+
+    document.getElementById('sendAnother')?.addEventListener('click', () => {
+      form.reset();
+      success!.classList.remove('show');
+      form.style.display = '';
+    });
+
+    form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea').forEach((f) => {
+      f.addEventListener('input', () => { setErr(f.name, false); });
+    });
+  }
+
+  document.getElementById('emailMethod')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText('hello@thedev.blog').then(() => {
+        window.thedevToast && window.thedevToast('Email copied to clipboard');
+      });
+    }
+  });
+</script>

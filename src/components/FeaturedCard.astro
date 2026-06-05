@@ -1,0 +1,29 @@
+---
+import type { Article } from '../lib/articles';
+
+interface Props {
+  article: Article;
+}
+const { article: a } = Astro.props;
+---
+
+<a class="featured" id="featuredCard" href={a.url}>
+  <div class={`featured__media ${a.catClass}`}>
+    <span class="nb-badge nb-badge--square cat-tag" style="position:absolute;top:14px;left:14px">
+      ★ Featured
+    </span>
+    <span class="glyph">{a.glyph}</span>
+  </div>
+  <div class="featured__body">
+    <span class="kicker">{a.cat}</span>
+    <h3 class="featured__title">{a.title}</h3>
+    <p class="featured__excerpt">{a.excerpt}</p>
+    <div class="card__meta">
+      {a.date}
+      <span class="dot"></span>
+      {a.readMins} min read
+      <span class="dot"></span>
+      {a.tags.map((t) => `#${t}`).join(' ')}
+    </div>
+  </div>
+</a>

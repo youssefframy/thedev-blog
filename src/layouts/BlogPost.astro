@@ -1,86 +1,234 @@
 ---
-import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
-import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
-import FormattedDate from '../components/FormattedDate.astro';
-import Header from '../components/Header.astro';
+import BaseLayout from './BaseLayout.astro';
+import Newsletter from '../components/Newsletter.astro';
+import PostCard from '../components/PostCard.astro';
+import { getArticles } from '../lib/articles';
+import '../styles/article.css';
 
-type Props = CollectionEntry<'blog'>['data'];
+type Props = CollectionEntry<'blog'>['data'] & { postId: string };
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { title, description, pubDate, category, tags, readMins, postId } = Astro.props;
+
+// Category → badge background color (matching reference)
+const CAT_COLOR: Record<string, string> = {
+  AWS: 'var(--pop-yellow)',
+  'Software Engineering': 'var(--pop-blue)',
+  DevTools: 'var(--pop-green)',
+  Projects: 'var(--pop-purple)',
+  Notes: 'var(--pop-red)',
+};
+const badgeBg = CAT_COLOR[category] ?? 'var(--main)';
+const badgeColor = category === 'AWS' || category === 'Notes' ? '#111' : '#fff';
+
+// Suggested reads: up to 3 posts excluding the current one
+const allArticles = await getArticles();
+const suggestions = allArticles.filter((a) => a.id !== postId).slice(0, 3);
+
+// Format date
+const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+const displayReadMins = readMins ?? 5;
 ---
 
-<html lang="en">
-	<head>
-		<BaseHead title={title} description={description} />
-		<style>
-			main {
-				width: calc(100% - 2em);
-				max-width: 100%;
-				margin: 0;
-			}
-			.hero-image {
-				width: 100%;
-			}
-			.hero-image img {
-				display: block;
-				margin: 0 auto;
-				border-radius: 12px;
-				box-shadow: var(--box-shadow);
-			}
-			.prose {
-				width: 720px;
-				max-width: calc(100% - 2em);
-				margin: auto;
-				padding: 1em;
-				color: rgb(var(--gray-dark));
-			}
-			.title {
-				margin-bottom: 1em;
-				padding: 1em 0;
-				text-align: center;
-				line-height: 1;
-			}
-			.title h1 {
-				margin: 0 0 0.5em 0;
-			}
-			.date {
-				margin-bottom: 0.5em;
-				color: rgb(var(--gray));
-			}
-			.last-updated-on {
-				font-style: italic;
-			}
-		</style>
-	</head>
+<BaseLayout title={title} description={description} page="articles">
+  <!-- Reading progress bar (position:fixed, sits at top of viewport) -->
+  <div class="progress" id="progress"></div>
 
-	<body>
-		<Header />
-		<main>
-			<article>
-				<div class="hero-image">
-					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
-				</div>
-				<div class="prose">
-					<div class="title">
-						<div class="date">
-							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
-									</div>
-								)
-							}
-						</div>
-						<h1>{title}</h1>
-						<hr />
-					</div>
-					<slot />
-				</div>
-			</article>
-		</main>
-		<Footer />
-	</body>
-</html>
+  <article>
+    <!-- HEADER -->
+    <header class="wrap wrap--narrow art-head">
+      <div class="art-breadcrumb">
+        <a href="/">~/thedev</a> /
+        <a href={`/#latest`}>{category.toLowerCase().replace(' ', '-')}</a> /
+        <span>{title.toLowerCase().replace(/\s+/g, '-').slice(0, 30)}.md</span>
+      </div>
+      <span class="nb-badge nb-badge--square" style={`background:${badgeBg};color:${badgeColor}`}>{category}</span>
+      <h1 class="art-title">{title}</h1>
+      <div class="art-meta">
+        <span class="av">td</span>
+        <span class="who">thedev</span>
+        <span class="dot"></span>
+        <span>{dateStr}</span>
+        <span class="dot"></span>
+        <span>{displayReadMins} min read</span>
+      </div>
+      <div class="art-tags">
+        {tags.map((t) => (
+          <span class="nb-badge nb-badge--square">#{t}</span>
+        ))}
+      </div>
+    </header>
+
+    <!-- BODY + TOC -->
+    <div class="wrap art-layout" id="article-body">
+      <div class="prose" id="prose">
+        <slot />
+      </div>
+      <aside class="toc" id="toc" aria-label="Table of contents">
+        <div class="toc__label">On this page</div>
+        <ul class="toc__list" id="tocList"></ul>
+      </aside>
+    </div>
+
+    <!-- FOOTER / AUTHOR CARD -->
+    <div class="wrap wrap--narrow art-foot">
+      <div class="author-card">
+        <span class="author-card__av">td</span>
+        <div>
+          <h4>thedev</h4>
+          <p>Cloud-leaning software engineer and AWS Community Builder. I write things down so the next on-call shift goes smoother.</p>
+          <div class="btn-row">
+            <a class="nb-btn nb-btn--sm" href="/about">More about me</a>
+            <a class="nb-btn nb-btn--sm nb-btn--white" href="/contact">Get in touch</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- Newsletter -->
+  <Newsletter />
+
+  <!-- Suggested reads -->
+  {suggestions.length > 0 && (
+    <section class="wrap section" style="padding-top:0">
+      <div class="posts-head">
+        <h2>Keep reading</h2>
+        <a class="kicker" href="/#latest" style="text-decoration:none">all posts →</a>
+      </div>
+      <div class="suggest">
+        {suggestions.map((a, i) => (
+          <PostCard article={a} index={i} />
+        ))}
+      </div>
+    </section>
+  )}
+</BaseLayout>
+
+<script>
+  interface TocItem { el: HTMLHeadingElement; link: HTMLAnchorElement; }
+
+  // ---- build TOC from headings ----
+  const prose = document.getElementById('prose');
+  const tocList = document.getElementById('tocList');
+  const items: TocItem[] = [];
+
+  if (prose && tocList) {
+    const heads = prose.querySelectorAll<HTMLHeadingElement>('h2, h3');
+    heads.forEach((h) => {
+      if (!h.id) return;
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent;
+      if (h.tagName === 'H3') a.className = 'lvl3';
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        const top = h.getBoundingClientRect().top + window.pageYOffset - 96;
+        window.scrollTo({ top, behavior: 'smooth' });
+        history.replaceState(null, '', '#' + h.id);
+      });
+      li.appendChild(a);
+      tocList.appendChild(li);
+      items.push({ el: h, link: a });
+    });
+  }
+
+  // ---- scrollspy + reading progress ----
+  const progressEl = document.getElementById('progress') as HTMLElement | null;
+
+  let rafPending = false;
+  function onScroll() {
+    if (rafPending) return;
+    rafPending = true;
+    requestAnimationFrame(() => {
+      rafPending = false;
+      const st = window.pageYOffset || document.documentElement.scrollTop;
+      const docH = document.documentElement.scrollHeight - window.innerHeight;
+      if (progressEl) progressEl.style.width = (docH > 0 ? Math.min(100, (st / docH) * 100) : 0) + '%';
+
+      let current: TocItem | null = items[0] ?? null;
+      for (const it of items) {
+        if (it.el.getBoundingClientRect().top - 100 <= 0) current = it;
+      }
+      items.forEach((it) => it.link.classList.toggle('active', it === current));
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  onScroll();
+
+  // ---- inject copy-button chrome around <pre> blocks ----
+  const copySVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  const checkSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+  const toast = (window as typeof window & { thedevToast?: (msg: string) => void }).thedevToast;
+
+  function wireCopyButton(btn: HTMLButtonElement, preEl: HTMLPreElement) {
+    btn.innerHTML = copySVG + '<span>Copy</span>';
+    btn.addEventListener('click', () => {
+      const text = preEl.innerText;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+          btn.innerHTML = checkSVG + '<span>Copied</span>';
+          toast?.('Copied to clipboard');
+          setTimeout(() => { btn.innerHTML = copySVG + '<span>Copy</span>'; }, 1600);
+        }).catch(() => { toast?.('Copy failed'); });
+      } else {
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.cssText = 'position:fixed;opacity:0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          btn.innerHTML = checkSVG + '<span>Copied</span>';
+          setTimeout(() => { btn.innerHTML = copySVG + '<span>Copy</span>'; }, 1600);
+        } catch {
+          toast?.('Copy not supported');
+        }
+      }
+    });
+  }
+
+  if (prose) {
+    prose.querySelectorAll<HTMLPreElement>('pre').forEach((pre) => {
+      // skip if already wrapped
+      if (pre.parentElement?.classList.contains('codeblock')) return;
+
+      const codeEl = pre.querySelector('code');
+      const lang = codeEl?.dataset?.language ?? '';
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'codeblock';
+
+      const bar = document.createElement('div');
+      bar.className = 'codeblock__bar';
+
+      const dots = document.createElement('span');
+      dots.className = 'codeblock__dots';
+      dots.innerHTML = '<i></i><i></i><i></i>';
+      bar.appendChild(dots);
+
+      if (lang) {
+        const name = document.createElement('span');
+        name.className = 'codeblock__name';
+        name.textContent = lang;
+        bar.appendChild(name);
+      }
+
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'copy-btn';
+      copyBtn.type = 'button';
+      bar.appendChild(copyBtn);
+
+      wrapper.appendChild(bar);
+      if (pre.parentNode) {
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        wireCopyButton(copyBtn, pre);
+      }
+    });
+  }
+</script>

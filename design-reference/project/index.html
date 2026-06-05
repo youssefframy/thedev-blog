@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>thedev — technical writing on cloud, code & tools</title>
+  <meta name="description" content="Not your traditional developer — the developer. Articles on AWS, software engineering, devtools and shipping side projects.">
+  <link rel="alternate" type="application/rss+xml" title="thedev RSS" href="rss.html">
+  <script>(function(){try{var t=localStorage.getItem("thedev-theme")||"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+  <link rel="stylesheet" href="styles/colors_and_type.css">
+  <link rel="stylesheet" href="styles/components.css">
+  <link rel="stylesheet" href="styles/site.css">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body data-page="home" data-home="featured">
+  <a class="skip-link" href="#latest">Skip to articles</a>
+
+  <!-- ============ HERO ============ -->
+  <section class="wrap">
+    <div class="hero">
+      <div class="hero__text">
+        <span class="kicker">thedev — technical blog</span>
+        <h1 class="hero__title">Not your traditional developer. <span class="box">the</span> <span class="accent">developer.</span></h1>
+        <p class="hero__sub">Field notes on AWS, software engineering, and the unglamorous tooling that makes shipping fun. Long enough to be useful, short enough to finish with one coffee.</p>
+        <div class="btn-row" style="margin-top:1.6rem">
+          <a class="nb-btn" href="#latest">Read latest</a>
+          <a class="nb-btn nb-btn--white" href="about.html">About me</a>
+        </div>
+        <div class="hero__stats">
+          <div><span class="stat-n" data-count="62">62</span><span class="stat-l">// articles</span></div>
+          <div><span class="stat-n">5</span><span class="stat-l">// topics</span></div>
+          <div><span class="stat-n">2019</span><span class="stat-l">// writing since</span></div>
+        </div>
+      </div>
+      <div class="hero__visual">
+        <div class="term nb-terminal" data-open-shell title="Click to open the shell">
+          <div class="nb-terminal__bar">
+            <div class="nb-terminal__dots"><i></i><i></i><i></i></div>
+            <span class="nb-terminal__title">~/thedev — zsh</span>
+            <span class="term__cta">click to run ❯</span>
+          </div>
+          <div class="nb-terminal__body">
+            <span class="nb-prompt typed">whoami</span>
+            <span class="out">the developer. writes things down so you don't have to.</span>
+            <span class="sp"></span>
+            <span class="nb-prompt typed">ls ~/posts | tail -3</span>
+            <span class="out ok">killing-cold-starts.md</span>
+            <span class="out ok">choose-boring-architecture.md</span>
+            <span class="out ok">type-safe-env.md</span>
+            <span class="sp"></span>
+            <span class="nb-prompt typed">cat status</span>
+            <span class="out blue">● shipping<span class="cursor"></span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FILTER + POSTS ============ -->
+  <main class="wrap section" id="latest" style="padding-top:1rem">
+    <div class="posts-head">
+      <h2>Latest writing</h2>
+      <span class="kicker" id="resultCount"></span>
+    </div>
+    <div class="filterbar" id="filterbar" role="group" aria-label="Filter by topic"></div>
+
+    <a class="featured reveal" id="featured" href="article.html"></a>
+
+    <div class="post-grid" id="postGrid"></div>
+    <p id="noPosts" style="display:none;text-align:center;color:var(--muted-foreground);font-family:var(--font-mono);padding:2rem">Nothing here yet. Go make something.</p>
+  </main>
+
+  <!-- ============ NEWSLETTER ============ -->
+  <section class="wrap section" style="padding-top:0">
+    <div class="newsletter reveal">
+      <div>
+        <span class="kicker">// the dispatch</span>
+        <h2>One email. When there's something worth reading.</h2>
+        <p>New articles + the occasional link dump. No spam, no "growth hacks". Unsubscribe in one click.</p>
+      </div>
+      <form class="news-form" novalidate>
+        <input class="nb-input" type="email" placeholder="you@domain.dev" aria-label="Email address" required>
+        <button class="nb-btn" type="submit">Subscribe</button>
+        <p class="news-note">$ joined by 3,100+ builders</p>
+      </form>
+    </div>
+  </section>
+
+  <div id="tweaks-root"></div>
+
+  <script src="js/site.js"></script>
+  <script>
+    window.thedevPageInit = function (ctx) {
+      var ARTICLES = ctx.ARTICLES, CATS = ctx.CATS, I = ctx.I;
+      var active = "All";
+      var featured = ARTICLES[0];
+      var rest = ARTICLES.slice(1);
+
+      // featured card
+      var fe = document.getElementById("featured");
+      fe.innerHTML =
+        '<div class="featured__media ' + featured.catClass + '">' +
+          '<span class="nb-badge nb-badge--square cat-tag" style="position:absolute;top:14px;left:14px">★ Featured</span>' +
+          '<span class="glyph">' + featured.glyph + '</span>' +
+        '</div>' +
+        '<div class="featured__body">' +
+          '<span class="kicker">' + featured.cat + '</span>' +
+          '<h3 class="featured__title">' + featured.title + '</h3>' +
+          '<p class="featured__excerpt">' + featured.excerpt + '</p>' +
+          '<div class="card__meta">' + featured.date + '<span class="dot"></span>' + featured.read + ' min read<span class="dot"></span>' + featured.tags.map(function(t){return "#"+t;}).join(" ") + '</div>' +
+        '</div>';
+
+      // filter chips
+      var fb = document.getElementById("filterbar");
+      var cats = ["All"].concat(CATS);
+      fb.innerHTML = cats.map(function (c) {
+        var n = c === "All" ? ARTICLES.length : ARTICLES.filter(function(a){return a.cat===c;}).length;
+        return '<button class="chip" data-cat="' + c + '" aria-pressed="' + (c === "All") + '">' + c + '<span class="ct">' + n + '</span></button>';
+      }).join("");
+
+      var prefersReduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      function cardHTML(a, i) {
+        var delay = Math.min(i, 8) * 55;
+        return '<a class="card reveal" style="transition-delay:' + delay + 'ms" href="' + a.url + '" data-cat="' + a.cat + '">' +
+          '<div class="card__thumb ' + a.catClass + '">' +
+            '<span class="nb-badge nb-badge--square cat-tag">' + a.cat + '</span>' +
+            '<span class="glyph">' + a.glyph + '</span>' +
+          '</div>' +
+          '<div class="card__body">' +
+            '<h3 class="card__title">' + a.title + '</h3>' +
+            '<p class="card__excerpt">' + a.excerpt + '</p>' +
+            '<div class="card__meta">' + a.date + '<span class="dot"></span>' + a.read + ' min<span class="dot"></span>' + a.tags.slice(0,2).map(function(t){return "#"+t;}).join(" ") + '</div>' +
+          '</div></a>';
+      }
+
+      function render() {
+        var grid = document.getElementById("postGrid");
+        var list = active === "All" ? rest : ARTICLES.filter(function (a) { return a.cat === active; });
+        grid.innerHTML = list.map(cardHTML).join("");
+        document.getElementById("noPosts").style.display = list.length ? "none" : "block";
+        document.getElementById("resultCount").textContent = list.length + (list.length === 1 ? " post" : " posts");
+        // featured only shown in "All"
+        fe.style.display = active === "All" ? "" : "none";
+        // stagger the entrance, then hand control back to the snappy hover transition
+        var cards = grid.querySelectorAll(".card.reveal");
+        requestAnimationFrame(function () { cards.forEach(function (c) { c.classList.add("in"); }); });
+        setTimeout(function () {
+          cards.forEach(function (c) {
+            c.classList.remove("reveal", "in"); c.style.transitionDelay = "";
+            if (c.getAnimations) c.getAnimations().forEach(function (a) { a.cancel(); });
+          });
+        }, 650 + Math.min(list.length, 8) * 55);
+      }
+
+      fb.addEventListener("click", function (e) {
+        var btn = e.target.closest(".chip");
+        if (!btn) return;
+        active = btn.dataset.cat;
+        fb.querySelectorAll(".chip").forEach(function (c) { c.setAttribute("aria-pressed", String(c === btn)); });
+        render();
+      });
+      render();
+
+      // count-up
+      var statEl = document.querySelector('[data-count]');
+      if (statEl) {
+        var target = +statEl.getAttribute("data-count"), cur = 0, step = Math.ceil(target/30);
+        var iv = setInterval(function(){ cur += step; if (cur >= target){ cur = target; clearInterval(iv);} statEl.textContent = cur; }, 28);
+      }
+
+      // ---- hero terminal typewriter (textContent only — no opacity, capture-safe) ----
+      (function typeTerminal() {
+        var body = document.querySelector(".term .nb-terminal__body");
+        if (!body || prefersReduce) return;
+        var lines = Array.prototype.slice.call(body.children);
+        var data = lines.map(function (el) {
+          return { el: el, html: el.innerHTML, text: el.textContent,
+                   hasEl: el.children.length > 0, spacer: el.classList.contains("sp"),
+                   cmd: el.classList.contains("nb-prompt") };
+        });
+        data.forEach(function (d) { if (!d.spacer) { if (d.hasEl) d.el.innerHTML = ""; else d.el.textContent = ""; } });
+        var i = 0;
+        function nextLine() {
+          if (i >= data.length) return;
+          var d = data[i];
+          if (d.spacer) { i++; return nextLine(); }
+          if (d.hasEl) { d.el.innerHTML = d.html; i++; return setTimeout(nextLine, 300); }
+          var full = d.text, c = 0, speed = d.cmd ? 36 : 12;
+          (function typeChar() {
+            d.el.textContent = full.slice(0, c);
+            if (c++ <= full.length) setTimeout(typeChar, speed);
+            else { i++; setTimeout(nextLine, d.cmd ? 200 : 90); }
+          })();
+        }
+        nextLine();
+        // safety net — guarantee full content even if interrupted
+        setTimeout(function () { data.forEach(function (d) { if (!d.spacer) d.el.innerHTML = d.html; }); }, 4500);
+      })();
+
+      // let the featured card's own snappy transition govern hover once it's settled
+      setTimeout(function () {
+        var f = document.getElementById("featured");
+        if (f) { f.classList.remove("reveal", "in"); if (f.getAnimations) f.getAnimations().forEach(function (a) { a.cancel(); }); }
+      }, 1100);
+    };
+  </script>
+
+  <!-- Tweaks -->
+  <script type="text/babel" src="js/tweaks-panel.jsx"></script>
+  <script type="text/babel">
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "layout": "featured",
+      "accent": "#A78BFA",
+      "dark": true,
+      "grid": true,
+      "tilt": true
+    }/*EDITMODE-END*/;
+
+    function TweaksApp() {
+      const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+      React.useEffect(() => { document.body.setAttribute("data-home", t.layout); }, [t.layout]);
+      React.useEffect(() => { document.documentElement.style.setProperty("--main", t.accent); }, [t.accent]);
+      React.useEffect(() => {
+        const theme = t.dark ? "dark" : "light";
+        document.documentElement.setAttribute("data-theme", theme);
+        try { localStorage.setItem("thedev-theme", theme); } catch(e){}
+        const b = document.getElementById("themeToggle");
+        if (b && window.THEDEV_ICONS) b.innerHTML = t.dark ? THEDEV_ICONS.sun : THEDEV_ICONS.moon;
+      }, [t.dark]);
+      React.useEffect(() => { document.documentElement.style.setProperty("--grid-line", t.grid ? (t.dark?"rgba(240,240,236,0.04)":"rgba(17,17,17,0.045)") : "transparent"); }, [t.grid, t.dark]);
+      React.useEffect(() => {
+        let el = document.getElementById("tiltStyle");
+        if (!el) { el = document.createElement("style"); el.id = "tiltStyle"; document.head.appendChild(el); }
+        el.textContent = t.tilt ? "" : ".brand__mark,.term{transform:none!important}";
+      }, [t.tilt]);
+
+      return (
+        <TweaksPanel>
+          <TweakSection label="Home layout" />
+          <TweakRadio label="Post list" value={t.layout}
+            options={["featured", "list", "magazine"]}
+            onChange={(v) => setTweak("layout", v)} />
+          <TweakSection label="Theme" />
+          <TweakToggle label="Dark (Terminal)" value={t.dark} onChange={(v) => setTweak("dark", v)} />
+          <TweakColor label="Accent" value={t.accent}
+            options={["#A78BFA", "#4ADE80", "#FBBF24", "#38BDF8", "#FB7185", "#2DD4BF"]}
+            onChange={(v) => setTweak("accent", v)} />
+          <TweakSection label="Texture" />
+          <TweakToggle label="Grid paper" value={t.grid} onChange={(v) => setTweak("grid", v)} />
+          <TweakToggle label="Playful tilt" value={t.tilt} onChange={(v) => setTweak("tilt", v)} />
+        </TweaksPanel>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById("tweaks-root")).render(<TweaksApp />);
+  </script>
+</body>
+</html>

@@ -1,35 +1,36 @@
 // @ts-check
-
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import { defineConfig, fontProviders } from 'astro/config';
 
-// https://astro.build/config
+// TODO: update site to your real domain before deploying
 export default defineConfig({
-	site: 'https://example.com',
+	site: 'https://thedev.blog',
 	integrations: [mdx(), sitemap()],
 	fonts: [
 		{
-			provider: fontProviders.local(),
-			name: 'Atkinson',
-			cssVariable: '--font-atkinson',
-			fallbacks: ['sans-serif'],
-			options: {
-				variants: [
-					{
-						src: ['./src/assets/fonts/atkinson-regular.woff'],
-						weight: 400,
-						style: 'normal',
-						display: 'swap',
-					},
-					{
-						src: ['./src/assets/fonts/atkinson-bold.woff'],
-						weight: 700,
-						style: 'normal',
-						display: 'swap',
-					},
-				],
-			},
+			provider: fontProviders.google(),
+			name: 'Space Grotesk',
+			cssVariable: '--font-display',
+			weights: [400, 500, 600, 700],
+			styles: ['normal'],
+			fallbacks: ['system-ui', 'sans-serif'],
+		},
+		{
+			provider: fontProviders.google(),
+			name: 'Public Sans',
+			cssVariable: '--font-body',
+			weights: [400, 500, 600, 700, 800],
+			styles: ['normal', 'italic'],
+			fallbacks: ['system-ui', '-apple-system', 'sans-serif'],
+		},
+		{
+			provider: fontProviders.google(),
+			name: 'JetBrains Mono',
+			cssVariable: '--font-mono',
+			weights: [400, 500, 700],
+			styles: ['normal'],
+			fallbacks: ['ui-monospace', 'monospace'],
 		},
 	],
 });

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>About — thedev</title>
+  <meta name="description" content="Who's behind thedev: a cloud-leaning software engineer and AWS Community Builder who writes things down.">
+  <link rel="alternate" type="application/rss+xml" title="thedev RSS" href="rss.html">
+  <script>(function(){try{var t=localStorage.getItem("thedev-theme")||"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+  <link rel="stylesheet" href="styles/colors_and_type.css">
+  <link rel="stylesheet" href="styles/components.css">
+  <link rel="stylesheet" href="styles/site.css">
+  <link rel="stylesheet" href="styles/page.css">
+</head>
+<body data-page="about">
+  <a class="skip-link" href="#about-main">Skip to content</a>
+
+  <!-- ===== INTRO ===== -->
+  <section class="wrap section" id="about-main" style="padding-bottom:1rem">
+    <div class="about-hero">
+      <div>
+        <span class="kicker">// whoami</span>
+        <h1 class="page-title">I'm <span class="accent">thedev</span>. I write things down.</h1>
+        <p class="page-lead">Cloud-leaning software engineer, AWS Community Builder, and a chronic note-taker. This blog is where the notes live — the stuff I wish someone had written before I learned it the hard way at 2am.</p>
+        <div class="btn-row" style="margin-top:1.6rem">
+          <a class="nb-btn" href="contact.html">Get in touch</a>
+          <a class="nb-btn nb-btn--white" href="index.html#latest">Read the blog</a>
+        </div>
+      </div>
+      <div class="about-card">
+        <span class="about-card__av">td</span>
+        <div class="about-card__rows">
+          <div class="kv"><span>role</span><b>Software Engineer</b></div>
+          <div class="kv"><span>focus</span><b>Cloud · Backend</b></div>
+          <div class="kv"><span>stack</span><b>TS · Go · AWS</b></div>
+          <div class="kv"><span>since</span><b>2019</b></div>
+          <div class="kv"><span>coffee</span><b>required</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== AWS COMMUNITY BUILDER ===== -->
+  <section class="wrap section" style="padding-block:1.5rem">
+    <div class="cb-banner">
+      <div class="cb-banner__mark">☁</div>
+      <div>
+        <span class="kicker" style="color:#111">// recognition</span>
+        <h2>AWS Community Builder</h2>
+        <p>Part of the AWS Community Builders program — a global group of practitioners sharing knowledge about building on AWS. Expect serverless deep-dives, cost write-ups, and the occasional "don't do what I did" postmortem.</p>
+      </div>
+      <a class="nb-btn nb-btn--white" href="index.html#aws">Read AWS posts</a>
+    </div>
+  </section>
+
+  <!-- ===== CERTIFICATIONS (Credly) ===== -->
+  <section class="wrap section" id="certs" style="padding-top:0">
+    <div class="cert-head">
+      <div>
+        <span class="kicker">// credentials</span>
+        <h2>Certifications</h2>
+      </div>
+    </div>
+    <div class="cert-tabs" id="certTabs" role="tablist" aria-label="Certifications by provider"></div>
+    <div id="certPanel"></div>
+    <div class="cert-foot">
+      <p>$ verified on Credly</p>
+      <a class="nb-btn nb-btn--sm" href="https://www.credly.com/" target="_blank" rel="noopener" id="credlyAll">View on Credly</a>
+    </div>
+  </section>
+
+  <!-- ===== WHAT I WRITE ABOUT ===== -->
+  <section class="wrap section">
+    <div class="posts-head"><h2>What I write about</h2><span class="kicker">// topics</span></div>
+    <div class="topic-grid" id="topicGrid"></div>
+  </section>
+
+  <!-- ===== NOW / TIMELINE ===== -->
+  <section class="wrap section" style="padding-top:0">
+    <div class="two-col">
+      <div>
+        <span class="kicker">// now</span>
+        <h2 class="col-title">What I'm doing now</h2>
+        <ul class="now-list">
+          <li><b>Building</b> internal developer tooling on a small platform team.</li>
+          <li><b>Writing</b> a series on keeping serverless bills boring.</li>
+          <li><b>Learning</b> Rust properly, for real this time.</li>
+          <li><b>Reading</b> every public postmortem I can find.</li>
+        </ul>
+      </div>
+      <div>
+        <span class="kicker">// timeline</span>
+        <h2 class="col-title">The short version</h2>
+        <ol class="timeline">
+          <li><span class="t-year">2026</span><span class="t-txt">AWS Community Builder. Started writing here weekly.</span></li>
+          <li><span class="t-year">2023</span><span class="t-txt">Went all-in on platform &amp; developer experience work.</span></li>
+          <li><span class="t-year">2021</span><span class="t-txt">First production serverless system. First serverless bill shock.</span></li>
+          <li><span class="t-year">2019</span><span class="t-txt">Started keeping public notes. Never stopped.</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TERMINAL CTA ===== -->
+  <section class="wrap section" style="padding-top:0">
+    <div class="term-cta nb-terminal">
+      <div class="nb-terminal__bar">
+        <div class="nb-terminal__dots"><i></i><i></i><i></i></div>
+        <span class="nb-terminal__title">~/thedev — contact</span>
+      </div>
+      <div class="nb-terminal__body">
+        <span class="nb-prompt">cat contact.txt</span>
+        <span class="out">Want to talk shop, fix a typo, or argue about architecture?</span>
+        <span class="out">→ <a href="contact.html" style="color:var(--pop-green)">open the contact page</a> or grab the <a href="rss.html" style="color:var(--pop-blue)">RSS feed</a>.<span class="cursor"></span></span>
+      </div>
+    </div>
+  </section>
+
+  <script src="js/site.js"></script>
+  <script>
+    window.thedevPageInit = function (ctx) {
+      var I = ctx.I;
+
+      // ---- CERTIFICATIONS (Credly), tabbed by provider ----
+      // Replace `url` with your real Credly badge links (https://www.credly.com/badges/...).
+      var CREDLY_PROFILE = "https://www.credly.com/users/thedev";
+      var PROVIDERS = [
+        { id: "AWS", certs: [
+          { code: "CLF", name: "Cloud Practitioner", tier: "Foundational" },
+          { code: "AIF", name: "AI Practitioner", tier: "Foundational" },
+          { code: "SAA", name: "Solutions Architect Associate", tier: "Associate" },
+          { code: "DVA", name: "Developer Associate", tier: "Associate" },
+          { code: "SOA", name: "SysOps Administrator Associate", tier: "Associate" },
+          { code: "DEA", name: "Data Engineer Associate", tier: "Associate" },
+          { code: "MLA", name: "Machine Learning Engineer Associate", tier: "Associate" },
+          { code: "SAP", name: "Solutions Architect Professional", tier: "Professional" },
+          { code: "DOP", name: "DevOps Engineer Professional", tier: "Professional" },
+          { code: "ANS", name: "Advanced Networking Specialty", tier: "Specialty" },
+          { code: "MLS", name: "Machine Learning Specialty", tier: "Specialty" },
+          { code: "SCS", name: "Security Specialty", tier: "Specialty" }
+        ]},
+        { id: "GCP", certs: [] },
+        { id: "Azure", certs: [] },
+        { id: "Other", certs: [] }
+      ];
+      var verifyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg>';
+      document.getElementById("credlyAll").href = CREDLY_PROFILE;
+
+      var tabsEl = document.getElementById("certTabs");
+      var panelEl = document.getElementById("certPanel");
+
+      tabsEl.innerHTML = PROVIDERS.map(function (p, i) {
+        return '<button class="cert-tab" role="tab" data-p="' + p.id + '" data-active="' + (i === 0) + '">' +
+          p.id + '<span class="n">' + p.certs.length + '</span></button>';
+      }).join("");
+
+      function renderPanel(id) {
+        var p = PROVIDERS.filter(function (x) { return x.id === id; })[0];
+        if (!p.certs.length) {
+          panelEl.innerHTML = '<div class="cert-empty"><span class="cert-empty__mark">$ ls ' + id.toLowerCase() + '/</span>' +
+            '<p>Nothing here yet. Studying for these next.</p></div>';
+          return;
+        }
+        panelEl.innerHTML = '<div class="cert-grid">' + p.certs.map(function (c) {
+          return '<a class="cert-item" data-p="' + p.id + '" href="' + (c.url || CREDLY_PROFILE) + '" target="_blank" rel="noopener" title="Verify ' + c.name + ' on Credly">' +
+            '<span class="cert-chip">' + c.code + '</span>' +
+            '<span class="cert-item__body">' +
+              '<span class="cert-item__name">' + c.name + '</span>' +
+              '<span class="cert-item__meta">' + c.tier + ' <span class="cert-item__verify">· Verify ' + verifyIcon + '</span></span>' +
+            '</span></a>';
+        }).join("") + '</div>';
+      }
+
+      tabsEl.addEventListener("click", function (e) {
+        var btn = e.target.closest(".cert-tab");
+        if (!btn) return;
+        tabsEl.querySelectorAll(".cert-tab").forEach(function (b) { b.setAttribute("data-active", String(b === btn)); });
+        renderPanel(btn.dataset.p);
+      });
+      renderPanel("AWS");
+
+      // ---- TOPICS ----
+      var topics = [
+        { k: "AWS", g: "☁", c: "t-aws", d: "Serverless, cost, and the occasional Graviton rabbit hole." },
+        { k: "Software Engineering", g: "{}", c: "t-se", d: "Architecture decisions, type safety, and choosing boring on purpose." },
+        { k: "DevTools", g: ">_", c: "t-devtools", d: "CLIs, editors, and the tooling that makes a workday quieter." },
+        { k: "Projects", g: "⚑", c: "t-projects", d: "Shipping side projects without burning a weekend to ash." },
+        { k: "Notes", g: "✷", c: "t-notes", d: "Short field notes — debugging, reliability, things I read." }
+      ];
+      document.getElementById("topicGrid").innerHTML = topics.map(function (t) {
+        var n = ctx.ARTICLES.filter(function (a) { return a.cat === t.k; }).length;
+        return '<a class="topic-card ' + t.c + '" href="index.html#latest">' +
+          '<span class="topic-card__glyph">' + t.g + '</span>' +
+          '<h3>' + t.k + '</h3><p>' + t.d + '</p>' +
+          '<span class="topic-card__count">' + n + ' post' + (n === 1 ? '' : 's') + ' →</span></a>';
+      }).join("");
+    };
+  </script>
+</body>
+</html>

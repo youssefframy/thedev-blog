@@ -1,0 +1,165 @@
+---
+import { getArticles } from '../lib/articles';
+const articles = await getArticles();
+---
+
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-overlay__scrim" data-close></div>
+  <div class="search-box" role="dialog" aria-modal="true" aria-label="Search">
+
+    <div class="search-box__top">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+      </svg>
+      <input class="search-input" id="searchInput" type="text"
+             placeholder="Search articles, tags, topics…"
+             autocomplete="off" spellcheck="false" aria-label="Search query" />
+      <button class="search-esc" data-close>ESC</button>
+    </div>
+
+    <div class="search-results" id="searchResults"></div>
+
+    <div class="search-box__foot">
+      <span><span class="kbd">↑</span><span class="kbd">↓</span> navigate</span>
+      <span><span class="kbd">↵</span> open</span>
+      <span><span class="kbd">esc</span> close</span>
+      <span style="margin-left:auto"><b>{articles.length}</b> posts indexed</span>
+    </div>
+
+  </div>
+</div>
+
+<script type="application/json" id="searchData" is:inline set:html={JSON.stringify(articles)} />
+
+<script>
+  import type { Article } from '../lib/articles';
+
+  const ARTICLES: Article[] = JSON.parse(
+    document.getElementById('searchData')!.textContent!
+  );
+
+  const searchState: { results: Article[]; active: number } = { results: [], active: 0 };
+  let _returnFocusEl: HTMLElement | null = null;
+
+  function esc(s: string): string {
+    return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c] ?? c));
+  }
+
+  function highlight(text: string, q: string): string {
+    if (!q) return esc(text);
+    const i = text.toLowerCase().indexOf(q.toLowerCase());
+    if (i < 0) return esc(text);
+    return esc(text.slice(0, i)) + '<b>' + esc(text.slice(i, i + q.length)) + '</b>' + esc(text.slice(i + q.length));
+  }
+
+  function renderResults(q: string): void {
+    q = q.trim();
+    let list = ARTICLES;
+    if (q) {
+      const ql = q.toLowerCase();
+      list = ARTICLES.filter(
+        (a) =>
+          a.title.toLowerCase().includes(ql) ||
+          a.excerpt.toLowerCase().includes(ql) ||
+          a.cat.toLowerCase().includes(ql) ||
+          a.tags.some((t) => t.includes(ql))
+      );
+    }
+    searchState.results = list;
+    searchState.active = 0;
+
+    if (!list.length) {
+      resultsBox.innerHTML = `<div class="search-empty">No matches for "<b>${esc(q)}</b>".<br>Try <b>aws</b>, <b>typescript</b>, or <b>devtools</b>.</div>`;
+      return;
+    }
+
+    resultsBox.innerHTML = list
+      .map(
+        (a, i) => `
+      <a class="search-result" href="${a.url}" data-i="${i}"${i === 0 ? ' data-active="true"' : ''}>
+        <span class="search-result__icon ${a.catClass}">${esc(a.glyph)}</span>
+        <span>
+          <span class="search-result__title">${highlight(a.title, q)}</span>
+          <span class="search-result__meta">${esc(a.cat)} · ${a.readMins} min · ${a.tags.map((t) => '#' + esc(t)).join(' ')}</span>
+        </span>
+      </a>`
+      )
+      .join('');
+
+    resultsBox.querySelectorAll<HTMLAnchorElement>('.search-result').forEach((el) => {
+      el.addEventListener('mousemove', () => setActive(parseInt(el.dataset.i ?? '0')));
+    });
+  }
+
+  function setActive(i: number): void {
+    const els = resultsBox.querySelectorAll<HTMLElement>('.search-result');
+    if (!els.length) return;
+    searchState.active = (i + els.length) % els.length;
+    els.forEach((el, idx) => el.setAttribute('data-active', String(idx === searchState.active)));
+    const activeEl = els[searchState.active];
+    const top = activeEl.offsetTop;
+    const bottom = top + activeEl.offsetHeight;
+    if (top < resultsBox.scrollTop) resultsBox.scrollTop = top - 8;
+    else if (bottom > resultsBox.scrollTop + resultsBox.clientHeight) resultsBox.scrollTop = bottom - resultsBox.clientHeight + 8;
+  }
+
+  function onSearchKey(e: KeyboardEvent): void {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActive(searchState.active + 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActive(searchState.active - 1);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const a = searchState.results[searchState.active];
+      if (a) window.location.href = a.url;
+    }
+  }
+
+  function openSearch(): void {
+    _returnFocusEl = document.activeElement as HTMLElement | null;
+    overlay.classList.add('open');
+    input.value = '';
+    renderResults('');
+    setTimeout(() => input.focus(), 30);
+  }
+
+  function closeSearch(): void {
+    overlay.classList.remove('open');
+    _returnFocusEl?.focus();
+    _returnFocusEl = null;
+  }
+
+  // Wire overlay close buttons and input events
+  const overlay = document.getElementById('searchOverlay')!;
+  overlay.querySelectorAll('[data-close]').forEach((el) =>
+    el.addEventListener('click', closeSearch)
+  );
+
+  const resultsBox = document.getElementById('searchResults')!;
+  const input = document.getElementById('searchInput') as HTMLInputElement;
+  input.addEventListener('input', () => renderResults(input.value));
+  input.addEventListener('keydown', onSearchKey);
+
+  // Wire header search trigger
+  document.getElementById('searchTrigger')?.addEventListener('click', openSearch);
+
+  // Global keyboard shortcuts (search parts only — no shell/backtick)
+  document.addEventListener('keydown', (e) => {
+    const ae = document.activeElement as HTMLElement | null;
+    const typing =
+      ae !== null &&
+      (/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName) || ae.isContentEditable);
+    if (e.key === '/' && !typing && !overlay.classList.contains('open')) {
+      e.preventDefault();
+      openSearch();
+    }
+    if (e.key === 'Escape' && overlay.classList.contains('open')) {
+      closeSearch();
+    }
+  });
+
+  // Expose globally for external callers (e.g. header button, shell trigger)
+  (window as typeof window & { thedevOpenSearch: typeof openSearch }).thedevOpenSearch = openSearch;
+</script>
