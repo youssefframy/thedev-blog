@@ -8,20 +8,50 @@
       <h2>One email. When there's something worth reading.</h2>
       <p>New articles + the occasional link dump. No spam, no "growth hacks". Unsubscribe in one click.</p>
     </div>
-    <form class="news-form" id="newsletterForm" novalidate>
-      <input
-        class="nb-input"
-        type="email"
-        name="email"
-        placeholder="you@domain.dev"
-        aria-label="Email address"
-        required
-      />
-      <button class="nb-btn" type="submit">Subscribe</button>
-      <p class="news-note">$ joined by 3,100+ builders</p>
-    </form>
+    <div class="news-right">
+      <form class="news-form" id="newsletterForm" novalidate>
+        <input
+          class="nb-input"
+          type="email"
+          name="email"
+          placeholder="you@domain.dev"
+          aria-label="Email address"
+          required
+        />
+        <button class="nb-btn" type="submit">Subscribe</button>
+        <p class="news-note">$ joined by 3,100+ builders</p>
+      </form>
+      <div class="btn-row news-btns">
+        <a class="nb-btn nb-btn--sm news-btn-dark" href="/about">More about me</a>
+        <a class="nb-btn nb-btn--sm news-btn-white" href="/contact">Get in touch</a>
+      </div>
+    </div>
   </div>
 </section>
+
+<style>
+  .news-right {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  /* Dark button — matches the subscribe button style on purple bg */
+  .news-btn-dark {
+    background: #15102b;
+    color: #fff;
+    border-color: #15102b;
+  }
+  .news-btn-dark:hover { background: #000; }
+
+  /* White button — contrasts against the purple card */
+  .news-btn-white {
+    background: #fff;
+    color: #111;
+    border-color: #000;
+  }
+  .news-btn-white:hover { background: #f5f5f5; }
+</style>
 
 <script>
   import { actions } from 'astro:actions';

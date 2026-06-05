@@ -7,15 +7,17 @@ const GISCUS = {
 };
 ---
 
-<div class="wrap wrap--narrow gsc-section">
+<div class="wrap gsc-section">
   <div class="gsc-section__head">
-    <span class="kicker">// discussion</span>
+    <span class="kicker">discussion</span>
   </div>
   <div id="comments" class="gsc-mount"></div>
 </div>
 
 <style>
   .gsc-section {
+    /* Match .wrap.art-layout width so comments align with article body */
+    max-width: 1060px;
     padding-top: 2.8rem;
     padding-bottom: 2rem;
     border-top: var(--border-width) solid var(--border-color);
@@ -25,7 +27,7 @@ const GISCUS = {
     margin-bottom: 1.4rem;
   }
 
-  /* Make the iframe fill the container width */
+  /* Make the iframe fill the full container width */
   .gsc-mount :global(iframe.giscus-frame) {
     width: 100% !important;
     min-width: unset !important;
