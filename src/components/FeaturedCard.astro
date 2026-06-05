@@ -8,7 +8,7 @@ const { article: a } = Astro.props;
 ---
 
 <a class="featured" id="featuredCard" href={a.url}>
-  <div class={`featured__media ${a.catClass}`} transition:name={`vt-thumb-${a.vtSlug}`}>
+  <div class={`featured__media ${a.catClass}`}>
     <span class="nb-badge nb-badge--square cat-tag" style="position:absolute;top:14px;left:14px" transition:name={`vt-badge-${a.vtSlug}`}>
       ★ Featured
     </span>

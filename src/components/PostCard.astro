@@ -19,7 +19,7 @@ const delay = Math.min(Math.max(i, 0), 8) * 55;
   style={[`transition-delay:${delay}ms`, extraStyle].filter(Boolean).join(';')}
   {...rest}
 >
-  <div class={`card__thumb ${a.catClass}`} transition:name={vt ? `vt-thumb-${a.vtSlug}` : undefined}>
+  <div class={`card__thumb ${a.catClass}`}>
     <span class="nb-badge nb-badge--square cat-tag" transition:name={vt ? `vt-badge-${a.vtSlug}` : undefined}>{a.cat}</span>
     <span class="glyph">{a.glyph}</span>
   </div>

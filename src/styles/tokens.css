@@ -6,6 +6,13 @@
    Purple (#A78BFA) is baked as --main for both themes.
    ===================================================================== */
 
+/* ===================== BREAKPOINT SCALE (mobile-first) ===============
+   All media queries use min-width. Tag each query with its alias.
+   sm  560px  — two-column grids, wider form inputs
+   md  720px  — hero / main layout columns
+   lg  880px  — navigation swap, sidebars, wide components
+   ===================================================================== */
+
 :root {
   /* ============ BRAND POP COLORS ============ */
   --pop-yellow:  #FFDB58;
