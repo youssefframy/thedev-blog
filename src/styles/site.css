@@ -323,23 +323,45 @@ img { max-width: 100%; display: block; }
 
 @media (max-width: 560px) { .term-shell { height: 70vh; } .term-shell__hint { display: none; } }
 
-/* ── View transition timing ───────────────────────────────────────────────
-   Astro's default is ~180ms which can look like a flash/lag on fast hardware.
-   350ms gives the eye enough time to follow the morph without feeling sluggish. */
+/* ── View transition timing & choreography ────────────────────────────────
+   Shared-element morphs (title → H1, badge, thumb) use an expo-out curve:
+   snappy start, smooth settle. Page-level crossfade is asymmetric — old page
+   clears quickly while the new content rises up slowly, giving a "stage clear"
+   feeling rather than an abrupt cut. */
 @media (prefers-reduced-motion: no-preference) {
-  /* Page crossfade (the root fade between pages) */
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation-duration: 350ms;
-    animation-timing-function: ease-in-out;
-  }
-  /* Shared-element morphs: title, badge, thumb */
+  /* Shared-element morph geometry (position + size interpolation) */
   ::view-transition-group(*) {
-    animation-duration: 350ms;
-    animation-timing-function: ease-in-out;
+    animation-duration: 620ms;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); /* expo-out */
   }
+
+  /* Content crossfade inside morphing elements */
   ::view-transition-old(*),
   ::view-transition-new(*) {
-    animation-duration: 350ms;
+    animation-duration: 460ms;
+    animation-timing-function: ease-in-out;
+  }
+
+  /* Page-level slide — old clears up, new rises from below */
+  ::view-transition-old(root) {
+    animation-name: vt-page-out;
+    animation-duration: 380ms;
+    animation-timing-function: cubic-bezier(0.4, 0, 1, 1); /* ease-in */
+    animation-fill-mode: forwards;
+  }
+  ::view-transition-new(root) {
+    animation-name: vt-page-in;
+    animation-duration: 560ms;
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1); /* ease-out */
+    animation-fill-mode: backwards;
+  }
+
+  @keyframes vt-page-out {
+    from { opacity: 1; transform: translateY(0);    }
+    to   { opacity: 0; transform: translateY(-14px); }
+  }
+  @keyframes vt-page-in {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0);    }
   }
 }
