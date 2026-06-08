@@ -98,8 +98,8 @@
 .cert-item:focus-visible { outline: var(--border-width) solid var(--ring); outline-offset: 3px; }
 .cert-chip { width: 48px; height: 48px; flex: none; display: grid; place-items: center; border: var(--border-width) solid var(--border-color); border-radius: var(--radius-sm); box-shadow: var(--shadow-sm); font-family: var(--font-mono); font-weight: 700; font-size: 14px; color: #111; }
 .cert-item__body { min-width: 0; flex: 1; }
-.cert-item__name { font-family: var(--font-display); font-weight: 700; font-size: 1.02rem; line-height: 1.2; }
-.cert-item__meta { font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; color: var(--muted-foreground); margin-top: 3px; }
+.cert-item__name { display: block; font-family: var(--font-display); font-weight: 700; font-size: 1.02rem; line-height: 1.2; }
+.cert-item__meta { display: block; font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; color: var(--muted-foreground); margin-top: 3px; }
 .cert-item__verify { white-space: nowrap; }
 .cert-item:hover .cert-item__verify { color: var(--main); }
 .cert-item__verify svg { width: 11px; height: 11px; vertical-align: -1px; }

@@ -1,13 +1,5 @@
 import { getCollection } from 'astro:content';
-import type { Category } from '../consts';
-
-const CAT_CLASS: Record<Category, string> = {
-	AWS: 't-aws',
-	'Software Engineering': 't-se',
-	DevTools: 't-devtools',
-	Projects: 't-projects',
-	Notes: 't-notes',
-};
+import { CAT_CLASS } from '../consts';
 
 /** Converts an article id to a valid CSS view-transition-name (no slashes, spaces, etc.) */
 export function toVtSlug(id: string): string {
@@ -58,10 +50,3 @@ export async function getArticles(): Promise<Article[]> {
 		});
 }
 
-export const CATS = [
-	'AWS',
-	'Software Engineering',
-	'DevTools',
-	'Projects',
-	'Notes',
-] as const;

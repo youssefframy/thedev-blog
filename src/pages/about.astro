@@ -1,40 +1,13 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getArticles } from '../lib/articles';
-import { CREDLY } from '../consts';
+import { CREDLY, CERT_PROVIDERS, CATEGORIES } from '../consts';
 import '../styles/page.css';
 
 const articles = await getArticles();
 
-// Topic grid data (matching reference about.html)
-const TOPICS = [
-  { key: 'AWS', glyph: '☁', cls: 't-aws', desc: 'Serverless, cost, and the occasional Graviton rabbit hole.' },
-  { key: 'Software Engineering', glyph: '{}', cls: 't-se', desc: 'Architecture decisions, type safety, and choosing boring on purpose.' },
-  { key: 'DevTools', glyph: '>_', cls: 't-devtools', desc: 'CLIs, editors, and the tooling that makes a workday quieter.' },
-  { key: 'Projects', glyph: '⚑', cls: 't-projects', desc: 'Shipping side projects without burning a weekend to ash.' },
-  { key: 'Notes', glyph: '✷', cls: 't-notes', desc: 'Short field notes — debugging, reliability, things I read.' },
-] as const;
-
-// Certifications (AWS ones pre-populated; GCP/Azure/Other empty — placeholder until Phase 7)
-const PROVIDERS = [
-  { id: 'AWS', certs: [
-    { code: 'CLF', name: 'Cloud Practitioner', tier: 'Foundational' },
-    { code: 'AIF', name: 'AI Practitioner', tier: 'Foundational' },
-    { code: 'SAA', name: 'Solutions Architect Associate', tier: 'Associate' },
-    { code: 'DVA', name: 'Developer Associate', tier: 'Associate' },
-    { code: 'SOA', name: 'SysOps Administrator Associate', tier: 'Associate' },
-    { code: 'DEA', name: 'Data Engineer Associate', tier: 'Associate' },
-    { code: 'MLA', name: 'Machine Learning Engineer Associate', tier: 'Associate' },
-    { code: 'SAP', name: 'Solutions Architect Professional', tier: 'Professional' },
-    { code: 'DOP', name: 'DevOps Engineer Professional', tier: 'Professional' },
-    { code: 'ANS', name: 'Advanced Networking Specialty', tier: 'Specialty' },
-    { code: 'MLS', name: 'Machine Learning Specialty', tier: 'Specialty' },
-    { code: 'SCS', name: 'Security Specialty', tier: 'Specialty' },
-  ]},
-  { id: 'GCP', certs: [] },
-  { id: 'Azure', certs: [] },
-  { id: 'Other', certs: [] },
-] as const;
+// Use certification providers from consts
+const PROVIDERS = CERT_PROVIDERS;
 ---
 
 <BaseLayout title="About — thedev" description="Who's behind thedev: a cloud-leaning software engineer and AWS Community Builder who writes things down." page="about">
@@ -55,9 +28,7 @@ const PROVIDERS = [
         <span class="about-card__av">td</span>
         <div class="about-card__rows">
           <div class="kv"><span>role</span><b>Software Engineer</b></div>
-          <div class="kv"><span>focus</span><b>Cloud · Backend</b></div>
-          <div class="kv"><span>stack</span><b>TS · Go · AWS</b></div>
-          <div class="kv"><span>since</span><b>2019</b></div>
+          <div class="kv"><span>focus</span><b>Cloud · Frontend · Backend</b></div>
           <div class="kv"><span>coffee</span><b>required</b></div>
         </div>
       </div>
@@ -99,7 +70,7 @@ const PROVIDERS = [
     <div id="certPanel">
       <div class="cert-grid">
         {PROVIDERS[0].certs.map((c) => (
-          <a class="cert-item" data-p="AWS" href={CREDLY.profile} target="_blank" rel="noopener" title={`Verify ${c.name} on Credly`}>
+          <a class="cert-item" data-p={PROVIDERS[0].id} href={c.link} target="_blank" rel="noopener" title={`View ${c.name} certificate`}>
             <span class="cert-chip">{c.code}</span>
             <span class="cert-item__body">
               <span class="cert-item__name">{c.name}</span>
@@ -111,8 +82,8 @@ const PROVIDERS = [
     </div>
 
     <div class="cert-foot">
-      <p>$ verified on Credly</p>
-      <a class="nb-btn nb-btn--sm" href={CREDLY.profile} target="_blank" rel="noopener">View on Credly</a>
+      <p>$ links verified on official platforms</p>
+      <a class="nb-btn nb-btn--sm" href={CREDLY.profile} target="_blank" rel="noopener">View all on Credly</a>
     </div>
   </section>
 
@@ -120,7 +91,7 @@ const PROVIDERS = [
   <section class="wrap section">
     <div class="posts-head"><h2>What I write about</h2><span class="kicker">// topics</span></div>
     <div class="topic-grid">
-      {TOPICS.map((t) => {
+      {CATEGORIES.map((t) => {
         const n = articles.filter((a) => a.cat === t.key).length;
         return (
           <a class={`topic-card ${t.cls}`} href="/#latest">
@@ -131,32 +102,6 @@ const PROVIDERS = [
           </a>
         );
       })}
-    </div>
-  </section>
-
-  <!-- ===== NOW / TIMELINE ===== -->
-  <section class="wrap section" style="padding-top:0">
-    <div class="two-col">
-      <div>
-        <span class="kicker">// now</span>
-        <h2 class="col-title">What I'm doing now</h2>
-        <ul class="now-list">
-          <li><b>Building</b> internal developer tooling on a small platform team.</li>
-          <li><b>Writing</b> a series on keeping serverless bills boring.</li>
-          <li><b>Learning</b> Rust properly, for real this time.</li>
-          <li><b>Reading</b> every public postmortem I can find.</li>
-        </ul>
-      </div>
-      <div>
-        <span class="kicker">// timeline</span>
-        <h2 class="col-title">The short version</h2>
-        <ol class="timeline">
-          <li><span class="t-year">2026</span><span class="t-txt">AWS Community Builder. Started writing here weekly.</span></li>
-          <li><span class="t-year">2023</span><span class="t-txt">Went all-in on platform &amp; developer experience work.</span></li>
-          <li><span class="t-year">2021</span><span class="t-txt">First production serverless system. First serverless bill shock.</span></li>
-          <li><span class="t-year">2019</span><span class="t-txt">Started keeping public notes. Never stopped.</span></li>
-        </ol>
-      </div>
     </div>
   </section>
 
@@ -183,7 +128,7 @@ const PROVIDERS = [
     document.addEventListener('astro:page-load', () => {
       var dataEl = document.getElementById('providersData');
       if (!dataEl) return; // only present on /about
-      var PROVIDERS: Array<{ id: string; certs: Array<{ code: string; name: string; tier: string }> }>;
+      var PROVIDERS: Array<{ id: string; certs: Array<{ code: string; name: string; tier: string; link: string }> }>;
       try {
         PROVIDERS = JSON.parse(dataEl.textContent!);
       } catch {
@@ -191,8 +136,6 @@ const PROVIDERS = [
         PROVIDERS = [];
       }
 
-      var credlyFootLink = document.querySelector<HTMLAnchorElement>('.cert-foot a[href]');
-      var credlyProfile = credlyFootLink?.href ?? 'https://www.credly.com/';
       var verifyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:-1px"><path d="M7 17 17 7M7 7h10v10"/></svg>';
 
       var tabsEl = document.getElementById('certTabs');
@@ -215,7 +158,7 @@ const PROVIDERS = [
           '<div class="cert-grid">' +
           p.certs.map(function (c) {
             return (
-              '<a class="cert-item" data-p="' + id + '" href="' + credlyProfile + '" target="_blank" rel="noopener" title="Verify ' + c.name + ' on Credly">' +
+              '<a class="cert-item" data-p="' + id + '" href="' + c.link + '" target="_blank" rel="noopener" title="View ' + c.name + ' certificate">' +
               '<span class="cert-chip">' + c.code + '</span>' +
               '<span class="cert-item__body">' +
               '<span class="cert-item__name">' + c.name + '</span>' +
@@ -226,16 +169,29 @@ const PROVIDERS = [
           '</div>';
       }
 
+      function activateTab(id: string) {
+        tabsEl!.querySelectorAll('.cert-tab').forEach(function (b) {
+          b.setAttribute('data-active', String((b as HTMLElement).dataset.p === id));
+        });
+        renderPanel(id);
+      }
+
       tabsEl.addEventListener('click', function (e) {
         var btn = (e.target as Element).closest('.cert-tab') as HTMLElement | null;
         if (!btn) return;
-        tabsEl!.querySelectorAll('.cert-tab').forEach(function (b) {
-          b.setAttribute('data-active', String(b === btn));
-        });
         var providerId = btn.dataset.p;
         if (!providerId) return;
-        renderPanel(providerId);
+        activateTab(providerId);
+        var url = new URL(location.href);
+        url.searchParams.set('provider', providerId);
+        history.replaceState(null, '', url.toString());
       });
+
+      // Restore tab from URL on load / hard refresh
+      var initialProvider = new URL(location.href).searchParams.get('provider');
+      if (initialProvider && PROVIDERS.some(function (p) { return p.id === initialProvider; })) {
+        activateTab(initialProvider);
+      }
     });
   </script>
 

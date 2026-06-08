@@ -38,9 +38,11 @@ const GISCUS = {
   function giscusTheme() {
     const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    // Fall back to built-in themes during local dev (Giscus can't fetch localhost CSS)
-    if (isLocal) return isDark ? 'dark_dimmed' : 'light';
-    return `${window.location.origin}/giscus-${isDark ? 'dark' : 'light'}.css`;
+    // Giscus runs in an iframe served from giscus.app, so it can't fetch our
+    // localhost CSS. During local dev, point at the deployed theme so the
+    // neo-brutalism styling still shows; otherwise use the current origin.
+    const origin = isLocal ? 'https://thedev-blog.tech' : window.location.origin;
+    return `${origin}/giscus-${isDark ? 'dark' : 'light'}.css`;
   }
 
   function mountGiscus() {

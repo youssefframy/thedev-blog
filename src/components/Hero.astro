@@ -1,10 +1,12 @@
 ---
 import HeroTerminal from './HeroTerminal.astro';
+import { CATS } from '../consts';
 
 interface Props {
   articleCount: number;
 }
 const { articleCount } = Astro.props;
+const topicCount = CATS.length;
 ---
 
 <section class="wrap">
@@ -18,8 +20,7 @@ const { articleCount } = Astro.props;
         <span class="accent">developer.</span>
       </h1>
       <p class="hero__sub">
-        Field notes on AWS, software engineering, and the unglamorous tooling that
-        makes shipping fun. Long enough to be useful, short enough to finish with one coffee.
+        Sharing what I've learned so you don't have to learn it the hard way. Cutting through the hype to focus on what actually ships.
       </p>
       <div class="btn-row" style="margin-top:1.6rem">
         <a class="nb-btn" href="/articles">Read latest</a>
@@ -31,12 +32,8 @@ const { articleCount } = Astro.props;
           <span class="stat-l">// articles</span>
         </div>
         <div>
-          <span class="stat-n">5</span>
+          <span class="stat-n" data-count={topicCount} id="statTopics">{topicCount}</span>
           <span class="stat-l">// topics</span>
-        </div>
-        <div>
-          <span class="stat-n">2019</span>
-          <span class="stat-l">// writing since</span>
         </div>
       </div>
     </div>
@@ -49,18 +46,21 @@ const { articleCount } = Astro.props;
 </section>
 
 <script>
-  // Count-up animation for article count
-  const statEl = document.getElementById('statArticles') as HTMLElement | null;
-  if (statEl) {
-    const target = parseInt(statEl.getAttribute('data-count') ?? '0', 10);
+  function countUp(el: HTMLElement) {
+    const target = parseInt(el.getAttribute('data-count') ?? '0', 10);
     if (target > 0 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       let cur = 0;
       const step = Math.ceil(target / 30);
       const iv = setInterval(() => {
         cur += step;
         if (cur >= target) { cur = target; clearInterval(iv); }
-        statEl.textContent = String(cur);
+        el.textContent = String(cur);
       }, 28);
     }
   }
+
+  const statArticles = document.getElementById('statArticles') as HTMLElement | null;
+  const statTopics = document.getElementById('statTopics') as HTMLElement | null;
+  if (statArticles) countUp(statArticles);
+  if (statTopics) countUp(statTopics);
 </script>
