@@ -1,0 +1,126 @@
+---
+import { LOCALES, listingUrl, type Locale } from '../lib/i18n';
+
+interface Props {
+	current: Locale;
+	langTargets?: Partial<Record<Locale, string>>;
+}
+
+const { current, langTargets } = Astro.props;
+
+const LABEL: Record<Locale, string> = { en: 'EN', fr: 'FR', es: 'ES' };
+const FULL_LABEL: Record<Locale, string> = { en: 'English', fr: 'Français', es: 'Español' };
+---
+
+<div class="lang-switch" id="langSwitch">
+	<button
+		class="icon-btn lang-trigger"
+		id="langTrigger"
+		aria-label={`Language: ${FULL_LABEL[current]}`}
+		aria-haspopup="listbox"
+		aria-expanded="false"
+	>
+		<!-- Globe icon -->
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+			<circle cx="12" cy="12" r="10"/>
+			<path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+			<path d="M2 12h20"/>
+		</svg>
+		<span class="lang-current">{LABEL[current]}</span>
+	</button>
+
+	<ul class="lang-menu" id="langMenu" role="listbox" aria-label="Select language" hidden>
+		{LOCALES.map((l) => (
+			<li role="none">
+				<a
+					role="option"
+					class:list={['lang-option', { 'lang-option--active': l === current }]}
+					href={langTargets?.[l] ?? listingUrl(l)}
+					data-lang={l}
+					aria-selected={l === current ? 'true' : 'false'}
+				>
+					<span class="lang-option__code">{LABEL[l]}</span>
+					<span class="lang-option__name">{FULL_LABEL[l]}</span>
+					{l === current && (
+						<svg class="lang-option__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<path d="M20 6 9 17l-5-5"/>
+						</svg>
+					)}
+				</a>
+			</li>
+		))}
+	</ul>
+</div>
+
+<script>
+	// Event delegation — registered once, survives all SPA swaps (no re-bind needed)
+	// The Header has transition:name so its DOM morphs; document listeners persist.
+
+	let _initialized = false;
+	if (!_initialized) {
+		_initialized = true;
+
+		// Toggle open/close
+		document.addEventListener('click', (e) => {
+			const target = e.target as HTMLElement;
+
+			// Trigger click: open/close the menu
+			if (target.closest('#langTrigger')) {
+				const trigger = document.getElementById('langTrigger');
+				const menu = document.getElementById('langMenu');
+				if (!trigger || !menu) return;
+				const isOpen = !menu.hidden;
+				menu.hidden = isOpen;
+				trigger.setAttribute('aria-expanded', String(!isOpen));
+				if (!isOpen) {
+					setTimeout(() => {
+						(menu.querySelector('.lang-option') as HTMLAnchorElement | null)?.focus();
+					}, 10);
+				}
+				return;
+			}
+
+			// Language option click: persist preference, let navigation proceed
+			const option = target.closest('[data-lang]') as HTMLElement | null;
+			if (option?.dataset.lang) {
+				try {
+					localStorage.setItem('thedev-lang', option.dataset.lang);
+				} catch (_) {}
+				// href navigation continues naturally
+				return;
+			}
+
+			// Click outside: close
+			const langSwitch = document.getElementById('langSwitch');
+			if (langSwitch && !langSwitch.contains(target)) {
+				const menu = document.getElementById('langMenu');
+				const trigger = document.getElementById('langTrigger');
+				if (menu && !menu.hidden) {
+					menu.hidden = true;
+					trigger?.setAttribute('aria-expanded', 'false');
+				}
+			}
+		});
+
+		// Close on Escape
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape') {
+				const menu = document.getElementById('langMenu');
+				const trigger = document.getElementById('langTrigger');
+				if (menu && !menu.hidden) {
+					menu.hidden = true;
+					trigger?.setAttribute('aria-expanded', 'false');
+					trigger?.focus();
+				}
+			}
+		});
+
+		// Close menu before each SPA swap (menu state clears automatically with fresh DOM)
+		document.addEventListener('astro:before-swap', () => {
+			const menu = document.getElementById('langMenu');
+			const trigger = document.getElementById('langTrigger');
+			if (menu) menu.hidden = true;
+			if (trigger) trigger.setAttribute('aria-expanded', 'false');
+		});
+	}
+</script>

@@ -220,6 +220,37 @@ img { max-width: 100%; display: block; }
 .site-foot__bottom { border-top: var(--border-width-sm) solid var(--border-color); padding-block: 1.1rem; display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-family: var(--font-mono); font-size: 12px; color: var(--muted-foreground); }
 @media (min-width: 720px) { /* md */ .site-foot__inner { grid-template-columns: 1.4fr 1fr 1fr; gap: 2rem; } }
 
+/* ============================ LANGUAGE SWITCHER ============================ */
+.lang-switch { position: relative; }
+.lang-trigger { display: inline-flex; align-items: center; gap: .45rem; padding: 0 .7rem; width: auto; font-family: var(--font-mono); font-size: 12px; font-weight: 700; }
+.lang-trigger svg { width: 18px; height: 18px; flex: none; }
+.lang-current { display: none; }
+.lang-menu {
+  position: absolute; top: calc(100% + .5rem); right: 0;
+  min-width: 140px;
+  background: var(--surface); border: var(--border-width) solid var(--border-color);
+  border-radius: var(--radius-base); box-shadow: var(--shadow-lg);
+  z-index: var(--z-modal);
+  list-style: none; margin: 0; padding: .3rem;
+}
+.lang-option {
+  display: flex; align-items: center; gap: .6rem;
+  padding: .55rem .7rem; border-radius: var(--radius-sm);
+  text-decoration: none; color: var(--muted-foreground);
+  font-family: var(--font-mono); font-size: 13px; font-weight: 600;
+  transition: background var(--dur-fast), color var(--dur-fast);
+  cursor: pointer;
+}
+.lang-option:hover, .lang-option:focus-visible { background: var(--surface-muted); color: var(--foreground); outline: none; }
+.lang-option--active { color: var(--foreground); }
+.lang-option__code { font-weight: 800; min-width: 2ch; }
+.lang-option__name { flex: 1; }
+.lang-option__check { width: 14px; height: 14px; flex: none; color: var(--pop-green); }
+@media (min-width: 880px) { /* lg */
+  .lang-trigger { padding: 0 .75rem; }
+  .lang-current { display: inline; }
+}
+
 /* ============================ SEARCH OVERLAY ============================ */
 .search-overlay { position: fixed; inset: 0; z-index: var(--z-modal); display: none; }
 .search-overlay.open { display: block; }

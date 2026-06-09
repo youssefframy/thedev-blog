@@ -1,13 +1,17 @@
 ---
 import { type CollectionEntry, getCollection, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
+import { parseId } from '../../lib/i18n';
 
 export async function getStaticPaths() {
 	const posts = await getCollection('blog');
-	return posts.map((post) => ({
-		params: { slug: post.id },
-		props: post,
-	}));
+	// Only build English-locale entries here; localized routes live at /[lang]/blog/
+	return posts
+		.filter((post) => parseId(post.id).locale === 'en')
+		.map((post) => ({
+			params: { slug: post.id },
+			props: post,
+		}));
 }
 type Props = CollectionEntry<'blog'>;
 

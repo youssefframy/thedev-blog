@@ -5,6 +5,7 @@ import Header from '../components/Header.astro';
 import SearchOverlay from '../components/SearchOverlay.astro';
 import ShellOverlay from '../components/ShellOverlay.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import type { Locale } from '../lib/i18n';
 import '../styles/tokens.css';
 import '../styles/components.css';
 import '../styles/site.css';
@@ -20,6 +21,12 @@ interface Props {
   modifiedTime?: string;
   author?: string;
   tags?: string[];
+  /** Current page locale — drives <html lang> and language switcher active state */
+  lang?: Locale;
+  /** Per-locale article URLs for the language switcher (article pages only) */
+  langTargets?: Partial<Record<Locale, string>>;
+  /** Per-locale URLs for hreflang <link> tags (article pages only, real translations) */
+  alternates?: Partial<Record<Locale, string>>;
 }
 
 const {
@@ -32,13 +39,16 @@ const {
   modifiedTime,
   author,
   tags,
+  lang = 'en',
+  langTargets,
+  alternates,
 } = Astro.props;
 
 const fullTitle = title === SITE_TITLE ? SITE_TITLE : `${title} — ${SITE_TITLE}`;
 ---
 
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang={lang} data-theme="dark">
   <head>
     <BaseHead
       title={fullTitle}
@@ -49,6 +59,8 @@ const fullTitle = title === SITE_TITLE ? SITE_TITLE : `${title} — ${SITE_TITLE
       modifiedTime={modifiedTime}
       author={author}
       tags={tags}
+      lang={lang}
+      alternates={alternates}
     />
 
     <!-- FOUC guard: apply persisted theme before paint + preserve across SPA navigations -->
@@ -73,7 +85,7 @@ const fullTitle = title === SITE_TITLE ? SITE_TITLE : `${title} — ${SITE_TITLE
 
   <body data-page={page}>
     <a class="skip-link" href="#main-content">Skip to content</a>
-    <Header page={page} />
+    <Header page={page} lang={lang} langTargets={langTargets} />
     <main id="main-content">
       <slot />
     </main>

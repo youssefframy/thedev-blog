@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getArticles } from '../lib/articles';
-import { CREDLY, CERT_PROVIDERS, CATEGORIES } from '../consts';
+import { CREDLY, CERT_PROVIDERS, CATEGORIES, SOCIALS } from '../consts';
 import '../styles/page.css';
 
 const articles = await getArticles();
@@ -44,7 +44,7 @@ const PROVIDERS = CERT_PROVIDERS;
         <h2>AWS Community Builder</h2>
         <p>Part of the AWS Community Builders program — a global group of practitioners sharing knowledge about building on AWS. Expect serverless deep-dives, cost write-ups, and the occasional "don't do what I did" postmortem.</p>
       </div>
-      <a class="nb-btn nb-btn--white" href="/#latest">Read AWS posts</a>
+      <a class="nb-btn nb-btn--white" href={SOCIALS.builderCenter} target="_blank" rel="noopener">Read AWS posts</a>
     </div>
   </section>
 

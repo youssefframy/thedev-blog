@@ -1,10 +1,14 @@
 ---
 import { NAV } from '../consts';
+import LangSwitcher from './LangSwitcher.astro';
+import type { Locale } from '../lib/i18n';
 
 interface Props {
   page?: string;
+  lang?: Locale;
+  langTargets?: Partial<Record<Locale, string>>;
 }
-const { page = '' } = Astro.props;
+const { page = '', lang = 'en', langTargets } = Astro.props;
 ---
 
 <header class="site-head" transition:name="site-header" transition:animate="none">
@@ -52,6 +56,9 @@ const { page = '' } = Astro.props;
           <path d="m4 17 6-6-6-6"/><path d="M12 19h8"/>
         </svg>
       </button>
+
+      <!-- Language switcher -->
+      <LangSwitcher current={lang} langTargets={langTargets} />
 
       <!-- Theme toggle — icons injected by theme.ts via data attrs -->
       <button

@@ -1,0 +1,44 @@
+---
+import { render } from 'astro:content';
+import BlogPost from '../../../layouts/BlogPost.astro';
+import { NON_DEFAULT_LOCALES, getLocalizedPosts, getTranslationMap, type Locale } from '../../../lib/i18n';
+
+export async function getStaticPaths() {
+	const paths = [];
+	for (const lang of NON_DEFAULT_LOCALES) {
+		const posts = await getLocalizedPosts(lang);
+		for (const { baseSlug, entry, isFallback } of posts) {
+			paths.push({
+				params: { lang, slug: baseSlug },
+				props: { entry, lang, isFallback, baseSlug },
+			});
+		}
+	}
+	return paths;
+}
+
+interface Props {
+	entry: Awaited<ReturnType<typeof getLocalizedPosts>>[number]['entry'];
+	lang: Locale;
+	isFallback: boolean;
+	baseSlug: string;
+}
+
+const { entry, lang, isFallback, baseSlug } = Astro.props;
+const { Content } = await render(entry);
+const { switcherMap, hreflangMap } = await getTranslationMap(baseSlug);
+
+// Don't emit hreflang for fallback pages (content is English, URL looks localized — don't lie to crawlers)
+const alternates = isFallback ? undefined : hreflangMap;
+---
+
+<BlogPost
+	{...entry.data}
+	postId={entry.id}
+	baseSlug={baseSlug}
+	lang={lang}
+	langTargets={switcherMap}
+	alternates={alternates}
+>
+	<Content />
+</BlogPost>

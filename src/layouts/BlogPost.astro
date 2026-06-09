@@ -5,11 +5,25 @@ import Newsletter from '../components/Newsletter.astro';
 import Giscus from '../components/Giscus.astro';
 import PostCard from '../components/PostCard.astro';
 import { getArticles, toVtSlug } from '../lib/articles';
+import { parseId, type Locale } from '../lib/i18n';
 import '../styles/article.css';
 
-type Props = CollectionEntry<'blog'>['data'] & { postId: string };
+type Props = CollectionEntry<'blog'>['data'] & {
+  postId: string;
+  /** Explicit base slug (no locale prefix). Derived from postId when omitted. */
+  baseSlug?: string;
+  /** Current page locale. Defaults to 'en'. */
+  lang?: Locale;
+  /** Per-locale article URLs for the language switcher (populated on localized routes). */
+  langTargets?: Partial<Record<Locale, string>>;
+  /** hreflang alternates for real translations (not fallbacks). */
+  alternates?: Partial<Record<Locale, string>>;
+};
 
-const { title, description, pubDate, updatedDate, category, tags, readMins, postId } = Astro.props;
+const { title, description, pubDate, updatedDate, category, tags, readMins, postId, lang = 'en', langTargets, alternates } = Astro.props;
+
+// Derive effective base slug: explicit prop wins, otherwise strip locale prefix
+const effectiveBaseSlug = Astro.props.baseSlug ?? parseId(postId).baseSlug;
 
 // Category → badge background color (matching reference)
 const CAT_COLOR: Record<string, string> = {
@@ -22,15 +36,16 @@ const CAT_COLOR: Record<string, string> = {
 const badgeBg = CAT_COLOR[category] ?? 'var(--main)';
 const badgeColor = category === 'AWS' || category === 'Notes' ? '#111' : '#fff';
 
-// Suggested reads: up to 3 posts excluding the current one
-const allArticles = await getArticles();
-const suggestions = allArticles.filter((a) => a.id !== postId).slice(0, 3);
+// Suggested reads: up to 3 posts in the same locale, excluding the current one
+const allArticles = await getArticles(lang);
+const suggestions = allArticles.filter((a) => a.baseSlug !== effectiveBaseSlug).slice(0, 3);
 
-// Format date
-const dateStr = pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+// Format date with locale-aware formatting
+const DATE_LOCALE: Record<Locale, string> = { en: 'en-US', fr: 'fr-FR', es: 'es-ES' };
+const dateStr = pubDate.toLocaleDateString(DATE_LOCALE[lang], { year: 'numeric', month: 'short', day: 'numeric' });
 
 const displayReadMins = readMins ?? 5;
-const vtSlug = toVtSlug(postId);
+const vtSlug = toVtSlug(effectiveBaseSlug);
 ---
 
 <BaseLayout
@@ -42,6 +57,9 @@ const vtSlug = toVtSlug(postId);
   modifiedTime={updatedDate?.toISOString()}
   author="thedev"
   tags={tags}
+  lang={lang}
+  langTargets={langTargets}
+  alternates={alternates}
 >
   <!-- Reading progress bar (position:fixed, sits at top of viewport) -->
   <div class="progress" id="progress"></div>
@@ -51,7 +69,7 @@ const vtSlug = toVtSlug(postId);
     <header class="wrap wrap--narrow art-head">
       <div class="art-breadcrumb">
         <a href="/">~/thedev</a> /
-        <a href="/articles">{category.toLowerCase().replace(' ', '-')}</a> /
+        <a href={lang === 'en' ? '/articles' : `/${lang}/articles`}>{category.toLowerCase().replace(' ', '-')}</a> /
         <span>{title.toLowerCase().replace(/\s+/g, '-').slice(0, 30)}.md</span>
       </div>
       <span class="nb-badge nb-badge--square" style={`background:${badgeBg};color:${badgeColor}`} transition:name={`vt-badge-${vtSlug}`}>{category}</span>
@@ -95,7 +113,7 @@ const vtSlug = toVtSlug(postId);
     <section class="wrap section art-suggest" style="padding-top:0">
       <div class="posts-head">
         <h2>Keep reading</h2>
-        <a class="kicker" href="/articles" style="text-decoration:none">all posts →</a>
+        <a class="kicker" href={lang === 'en' ? '/articles' : `/${lang}/articles`} style="text-decoration:none">all posts →</a>
       </div>
       <div class="suggest">
         {suggestions.map((a, i) => (

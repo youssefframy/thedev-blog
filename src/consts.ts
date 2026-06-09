@@ -20,6 +20,7 @@ export const NAV = [
 export const SOCIALS = {
   github: "https://github.com/youssefframy",
   linkedin: "https://linkedin.com/in/youssefframy",
+  builderCenter: "https://builder.aws.com/community/@thedev",
 } as const;
 
 // ---- Credly — TODO: replace with your profile/badge URLs ----

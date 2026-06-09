@@ -2,6 +2,7 @@
 import { Font } from 'astro:assets';
 import { ClientRouter } from 'astro:transitions';
 import { SITE_TITLE } from '../consts';
+import type { Locale } from '../lib/i18n';
 
 interface Props {
   title: string;
@@ -12,10 +13,14 @@ interface Props {
   modifiedTime?: string;
   author?: string;
   tags?: string[];
+  /** Current page locale — sets the hreflang for this page */
+  lang?: Locale;
+  /** Per-locale absolute or root-relative URLs for hreflang <link> tags. Only pass for real translations (not fallbacks). */
+  alternates?: Partial<Record<Locale, string>>;
 }
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const { title, description, ogImage, type = 'website', publishedTime, modifiedTime, author, tags } = Astro.props;
+const { title, description, ogImage, type = 'website', publishedTime, modifiedTime, author, tags, alternates } = Astro.props;
 const ogImageUrl = ogImage ?? new URL('/favicon.svg', Astro.site).href;
 
 const jsonLd = type === 'article' ? JSON.stringify({
@@ -52,6 +57,14 @@ const jsonLd = type === 'article' ? JSON.stringify({
 
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />
+
+<!-- hreflang alternates (article pages only, real translations only) -->
+{alternates && Object.entries(alternates).map(([loc, href]) => (
+  <link rel="alternate" hreflang={loc} href={new URL(href as string, Astro.site).href} />
+))}
+{alternates?.en && (
+  <link rel="alternate" hreflang="x-default" href={new URL(alternates.en, Astro.site).href} />
+)}
 
 <!-- Primary Meta Tags -->
 <title>{title}</title>

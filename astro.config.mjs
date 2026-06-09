@@ -8,7 +8,24 @@ export default defineConfig({
 	site: 'https://thedev-blog.tech',
 	adapter: vercel(),
 	prefetch: { prefetchAll: true, defaultStrategy: 'hover' },
-	integrations: [mdx(), sitemap()],
+	trailingSlash: 'ignore',
+	i18n: {
+		locales: ['en', 'fr', 'es'],
+		defaultLocale: 'en',
+		routing: {
+			prefixDefaultLocale: false,
+			redirectToDefaultLocale: false,
+		},
+	},
+	integrations: [
+		mdx(),
+		sitemap({
+			i18n: {
+				defaultLocale: 'en',
+				locales: { en: 'en-US', fr: 'fr-FR', es: 'es-ES' },
+			},
+		}),
+	],
 	env: {
 		schema: {
 			RESEND_API_KEY: envField.string({ context: 'server', access: 'secret' }),

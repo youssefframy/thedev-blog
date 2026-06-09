@@ -46,6 +46,12 @@ The defaults are the secure ones. You'd have to go out of your way to ship somet
 
 This isn't for the AWS wizard who already has a CDK stack they love. It's for the developer who knows their way around a terminal, has credentials configured, and just wants their site live without becoming a part-time cloud architect first. Basic AWS knowledge and the right IAM permissions — that's the whole bar.
 
+## It's open — come break it
+
+Issues and pull requests are genuinely welcome. The repo is intentionally small: around 400 lines of Go, no frameworks, no magic. If you want to add support for custom CloudFront behaviors, WAF integration, or your own deploy workflow — the surface area is easy to navigate. If it breaks on your setup, open an issue with your region and bucket name (minus any credentials, obviously). I'll look at it.
+
 ## The lesson
 
-I built this because I was tired of doing it by hand. I open-sourced it because I still remember how opaque AWS felt the first time I opened the console. If it saves you an afternoon of reading CloudFront docs — or stops you from shipping an open bucket — then it did its job. Issues and pull requests welcome; I'd genuinely love to hear what breaks for you.
+I built this because I was tired of doing it by hand. I open-sourced it because I still remember how opaque AWS felt the first time I opened the console. If it saves you an afternoon of reading CloudFront docs — or stops you from shipping an open bucket — then it did its job.
+
+There's more to do. The next post covers what I'm building next to make this tool genuinely production-ready — better error messages, teardown support, and a few things that came up in the first round of real-world use. If that sounds useful, [subscribe via RSS](/rss) or check back soon.
