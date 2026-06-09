@@ -95,6 +95,12 @@ img { max-width: 100%; display: block; }
 .head-burger { display: inline-grid; }
 .head-shell { display: none; }
 
+@media (max-width: 879px) { /* mobile header */
+  .brand__word { display: none; }
+  .site-head__bar { position: relative; }
+  .search-trigger { position: absolute; left: 50%; transform: translateX(-50%); }
+}
+
 @media (min-width: 880px) { /* lg */
   .nav { display: flex; }
   .search-trigger { width: auto; padding: 0 .85rem; }
